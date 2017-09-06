@@ -29,6 +29,7 @@
 #include <sys/types.h>
 
 #include <retro_common_api.h>
+
 #include <boolean.h>
 
 #include <stdarg.h>
@@ -37,49 +38,37 @@ RETRO_BEGIN_DECLS
 
 typedef struct RFILE RFILE;
 
-enum
-{
-   RFILE_MODE_READ = 0,
-   RFILE_MODE_READ_TEXT,
-   RFILE_MODE_WRITE,
-   RFILE_MODE_READ_WRITE,
-
-   /* There is no garantee these requests will be attended. */
-   RFILE_HINT_UNBUFFERED = 1<<8,
-   RFILE_HINT_MMAP       = 1<<9  /* requires RFILE_MODE_READ */
-};
-
-long long int filestream_get_size(RFILE *stream);
-
-void filestream_set_size(RFILE *stream);
+const char *filestream_get_name(RFILE *stream);
 
 const char *filestream_get_ext(RFILE *stream);
 
-RFILE *filestream_open(const char *path, unsigned mode, ssize_t len);
+long long int filestream_get_size(RFILE *stream);
 
-ssize_t filestream_seek(RFILE *stream, ssize_t offset, int whence);
-
-ssize_t filestream_read(RFILE *stream, void *data, size_t len);
-
-ssize_t filestream_write(RFILE *stream, const void *data, size_t len);
-
-ssize_t filestream_tell(RFILE *stream);
-
-void filestream_rewind(RFILE *stream);
+RFILE *filestream_open(const char *path, unsigned mode);
 
 int filestream_close(RFILE *stream);
 
-int filestream_read_file(const char *path, void **buf, ssize_t *len);
+int filestream_error(RFILE *stream);
 
-char *filestream_gets(RFILE *stream, char *s, size_t len);
+int64_t filestream_tell(RFILE *stream);
 
-char *filestream_getline(RFILE *stream);
+int64_t filestream_seek(RFILE *stream, int64_t offset, int whence);
 
-int filestream_getc(RFILE *stream);
+int64_t filestream_read(RFILE *stream, void *s, uint64_t len);
+
+int64_t filestream_write(RFILE *stream, const void *s, uint64_t len);
+
+int filestream_flush(RFILE *stream);
 
 int filestream_eof(RFILE *stream);
 
-bool filestream_write_file(const char *path, const void *data, ssize_t size);
+void filestream_rewind(RFILE *stream);
+
+char *filestream_getline(RFILE *stream);
+
+char *filestream_gets(RFILE *stream, char *s, uint64_t len);
+
+int filestream_getc(RFILE *stream);
 
 int filestream_putc(RFILE *stream, int c);
 
@@ -87,11 +76,9 @@ int filestream_vprintf(RFILE *stream, const char* format, va_list args);
 
 int filestream_printf(RFILE *stream, const char* format, ...);
 
-int filestream_error(RFILE *stream);
+int filestream_read_file(const char *path, void **buf, uint64_t *len);
 
-int filestream_get_fd(RFILE *stream);
-
-int filestream_flush(RFILE *stream);
+bool filestream_write_file(const char *path, const void *data, uint64_t size);
 
 RETRO_END_DECLS
 

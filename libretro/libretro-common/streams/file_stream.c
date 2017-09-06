@@ -25,258 +25,153 @@
 #include <string.h>
 #include <errno.h>
 
-#if defined(_WIN32)
-#  ifdef _MSC_VER
-#    define setmode _setmode
-#  endif
-#  ifdef _XBOX
-#    include <xtl.h>
-#    define INVALID_FILE_ATTRIBUTES -1
-#  else
-#    include <io.h>
-#    include <fcntl.h>
-#    include <direct.h>
-#    include <windows.h>
-#  endif
-#else
-#  if defined(PSP)
-#    include <pspiofilemgr.h>
-#  endif
-#  include <sys/types.h>
-#  include <sys/stat.h>
-#  if !defined(VITA)
-#  include <dirent.h>
-#  endif
-#  include <unistd.h>
-#endif
-
-#ifdef __CELLOS_LV2__
-#include <cell/cell_fs.h>
-#define O_RDONLY CELL_FS_O_RDONLY
-#define O_WRONLY CELL_FS_O_WRONLY
-#define O_CREAT CELL_FS_O_CREAT
-#define O_TRUNC CELL_FS_O_TRUNC
-#define O_RDWR CELL_FS_O_RDWR
-#else
-#include <fcntl.h>
-#endif
+#include "libretro.h"
 
 #include <streams/file_stream.h>
-#include <memmap.h>
-#include <retro_miscellaneous.h>
 
-struct RFILE
+// Callbacks
+
+retro_file_get_name_t filestream_get_name_cb = NULL;
+retro_file_get_ext_t filestream_get_ext_cb = NULL;
+retro_file_get_size_t filestream_get_size_cb = NULL;
+retro_file_open_t filestream_open_cb = NULL;
+retro_file_close_t filestream_close_cb = NULL;
+retro_file_error_t filestream_error_cb = NULL;
+retro_file_tell_t filestream_tell_cb = NULL;
+retro_file_seek_t filestream_seek_cb = NULL;
+retro_file_read_t filestream_read_cb = NULL;
+retro_file_write_t filestream_write_cb = NULL;
+retro_file_flush_t filestream_flush_cb = NULL;
+
+void retro_set_file_get_name(retro_file_get_name_t cb)
 {
-   unsigned hints;
-   char *ext;
-   long long int size;
-#if defined(PSP)
-   SceUID fd;
-#else
+	filestream_get_name_cb = cb;
+}
 
-#define HAVE_BUFFERED_IO 1
-
-#define MODE_STR_READ "r"
-#define MODE_STR_READ_UNBUF "rb"
-#define MODE_STR_WRITE_UNBUF "wb"
-#define MODE_STR_WRITE_PLUS "w+"
-
-#if defined(HAVE_BUFFERED_IO)
-   FILE *fp;
-#endif
-#if defined(HAVE_MMAP)
-   uint8_t *mapped;
-   uint64_t mappos;
-   uint64_t mapsize;
-#endif
-   int fd;
-#endif
-};
-
-int filestream_get_fd(RFILE *stream)
+void retro_set_file_get_ext(retro_file_get_ext_t cb)
 {
-   if (!stream)
-      return -1;
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-      return fileno(stream->fp);
-#endif
-   return stream->fd;
+	filestream_get_ext_cb = cb;
+}
+
+void retro_set_file_get_size(retro_file_get_size_t cb)
+{
+	filestream_get_size_cb = cb;
+}
+
+void retro_set_file_open(retro_file_open_t cb)
+{
+	filestream_open_cb = cb;
+}
+
+void retro_set_file_close(retro_file_close_t cb)
+{
+	filestream_close_cb = cb;
+}
+
+void retro_set_file_error(retro_file_error_t cb)
+{
+	filestream_error_cb = cb;
+}
+
+void retro_set_file_tell(retro_file_tell_t cb)
+{
+	filestream_tell_cb = cb;
+}
+
+void retro_set_file_seek(retro_file_seek_t cb)
+{
+	filestream_seek_cb = cb;
+}
+
+void retro_set_file_read(retro_file_read_t cb)
+{
+	filestream_read_cb = cb;
+}
+
+void retro_set_file_write(retro_file_write_t cb)
+{
+	filestream_write_cb = cb;
+}
+
+void retro_set_file_flush(retro_file_flush_t cb)
+{
+	filestream_flush_cb = cb;
+}
+
+// Callback wrappers
+
+const char *filestream_get_name(RFILE *stream)
+{
+	return filestream_get_name_cb(stream);
 }
 
 const char *filestream_get_ext(RFILE *stream)
 {
-   if (!stream)
-      return NULL;
-   return stream->ext;
+	return filestream_get_ext_cb(stream);
 }
 
 long long int filestream_get_size(RFILE *stream)
 {
-   if (!stream)
-      return 0;
-   return stream->size;
+	return filestream_get_size_cb(stream);
 }
 
-void filestream_set_size(RFILE *stream)
+RFILE *filestream_open(const char *path, unsigned mode)
 {
-   if (!stream)
-      return;
-
-   filestream_seek(stream, 0, SEEK_SET);
-   filestream_seek(stream, 0, SEEK_END);
-
-   stream->size = filestream_tell(stream);
-
-   filestream_seek(stream, 0, SEEK_SET);
+	return filestream_open_cb(path, mode);
 }
 
-RFILE *filestream_open(const char *path, unsigned mode, ssize_t len)
+int filestream_close(RFILE *stream)
 {
-   int            flags = 0;
-   int         mode_int = 0;
-#if defined(HAVE_BUFFERED_IO)
-   const char *mode_str = NULL;
-#endif
-   RFILE        *stream = (RFILE*)calloc(1, sizeof(*stream));
+	return filestream_close_cb(stream);
+}
 
-   if (!stream)
-      return NULL;
+int filestream_error(RFILE *stream)
+{
+	return filestream_error_cb(stream);
+}
 
-   (void)mode_int;
-   (void)flags;
+int64_t filestream_tell(RFILE *stream)
+{
+	return filestream_tell_cb(stream);
+}
 
-   stream->hints = mode;
+int64_t filestream_seek(RFILE *stream, int64_t offset, int whence)
+{
+	return filestream_seek_cb(stream, offset, whence);
+}
 
-#ifdef HAVE_MMAP
-   if (stream->hints & RFILE_HINT_MMAP && (stream->hints & 0xff) == RFILE_MODE_READ)
-      stream->hints |= RFILE_HINT_UNBUFFERED;
-   else
-#endif
-      stream->hints &= ~RFILE_HINT_MMAP;
+int64_t filestream_read(RFILE *stream, void *s, uint64_t len)
+{
+	return filestream_read_cb(stream, s, len);
+}
 
-   switch (mode & 0xff)
-   {
-      case RFILE_MODE_READ_TEXT:
-#if  defined(PSP)
-         mode_int = 0666;
-         flags    = PSP_O_RDONLY;
-#else
-#if defined(HAVE_BUFFERED_IO)
-         if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-            mode_str = MODE_STR_READ;
-#endif
-         /* No "else" here */
-         flags    = O_RDONLY;
-#endif
-         break;
-      case RFILE_MODE_READ:
-#if  defined(PSP)
-         mode_int = 0666;
-         flags    = PSP_O_RDONLY;
-#else
-#if defined(HAVE_BUFFERED_IO)
-         if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-            mode_str = MODE_STR_READ_UNBUF;
-#endif
-         /* No "else" here */
-         flags    = O_RDONLY;
-#endif
-         break;
-      case RFILE_MODE_WRITE:
-#if  defined(PSP)
-         mode_int = 0666;
-         flags    = PSP_O_CREAT | PSP_O_WRONLY | PSP_O_TRUNC;
-#else
-#if defined(HAVE_BUFFERED_IO)
-         if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-            mode_str = MODE_STR_WRITE_UNBUF;
-#endif
-         else
-         {
-            flags    = O_WRONLY | O_CREAT | O_TRUNC;
-#ifndef _WIN32
-            flags   |=  S_IRUSR | S_IWUSR;
-#endif
-         }
-#endif
-         break;
-      case RFILE_MODE_READ_WRITE:
-#if  defined(PSP)
-         mode_int = 0666;
-         flags    = PSP_O_RDWR;
-#else
-#if defined(HAVE_BUFFERED_IO)
-         if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-            mode_str = MODE_STR_WRITE_PLUS;
-#endif
-         else
-         {
-            flags    = O_RDWR;
-#ifdef _WIN32
-            flags   |= O_BINARY;
-#endif
-         }
-#endif
-         break;
-   }
+int64_t filestream_write(RFILE *stream, const void *s, uint64_t len)
+{
+	return filestream_write_cb(stream, s, len);
+}
 
-#if  defined(PSP)
-   stream->fd = sceIoOpen(path, flags, mode_int);
-#else
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0 && mode_str)
-   {
-      stream->fp = fopen(path, mode_str);
-      if (!stream->fp)
-         goto error;
-   }
-   else
-#endif
-   {
-      /* FIXME: HAVE_BUFFERED_IO is always 1, but if it is ever changed, open() needs to be changed to _wopen() for WIndows. */
-      stream->fd = open(path, flags, mode_int);
-      if (stream->fd == -1)
-         goto error;
-#ifdef HAVE_MMAP
-      if (stream->hints & RFILE_HINT_MMAP)
-      {
-         stream->mappos  = 0;
-         stream->mapped  = NULL;
-         stream->mapsize = filestream_seek(stream, 0, SEEK_END);
+int filestream_flush(RFILE *stream)
+{
+	return filestream_flush_cb(stream);
+}
 
-         if (stream->mapsize == (uint64_t)-1)
-            goto error;
+// Wrapper-based Implementations
 
-         filestream_rewind(stream);
+int filestream_eof(RFILE *stream)
+{
+	size_t current_position = filestream_tell(stream);
+	size_t end_position = filestream_seek(stream, 0, SEEK_END);
 
-         stream->mapped = (uint8_t*)mmap((void*)0,
-               stream->mapsize, PROT_READ,  MAP_SHARED, stream->fd, 0);
+	filestream_seek(stream, current_position, SEEK_SET);
 
-         if (stream->mapped == MAP_FAILED)
-            stream->hints &= ~RFILE_HINT_MMAP;
-      }
-#endif
-   }
-#endif
+	if (current_position >= end_position)
+		return 1;
+	return 0;
+}
 
-#if  defined(PSP)
-   if (stream->fd == -1)
-      goto error;
-#endif
-
-   {
-      const char *ld = (const char*)strrchr(path, '.');
-      stream->ext    = strdup(ld ? ld + 1 : "");
-   }
-
-   filestream_set_size(stream);
-
-   return stream;
-
-error:
-   filestream_close(stream);
-   return NULL;
+void filestream_rewind(RFILE *stream)
+{
+	filestream_seek(stream, 0L, SEEK_SET);
 }
 
 char *filestream_getline(RFILE *stream)
@@ -314,206 +209,27 @@ char *filestream_getline(RFILE *stream)
    return newline; 
 }
 
-char *filestream_gets(RFILE *stream, char *s, size_t len)
+char *filestream_gets(RFILE *stream, char *s, uint64_t len)
 {
    if (!stream)
       return NULL;
-#if defined(HAVE_BUFFERED_IO)
-   return fgets(s, (int)len, stream->fp);
-#elif  defined(PSP)
+
    if(filestream_read(stream,s,len)==len)
       return s;
    return NULL;
-#else
-   return gets(s);
-#endif
 }
 
 int filestream_getc(RFILE *stream)
 {
    char c = 0;
    (void)c;
+
    if (!stream)
       return 0;
-#if defined(HAVE_BUFFERED_IO)
-    return fgetc(stream->fp);
-#elif  defined(PSP)
+
     if(filestream_read(stream, &c, 1) == 1)
        return (int)c;
     return EOF;
-#else
-   return getc(stream->fd);
-#endif
-}
-
-ssize_t filestream_seek(RFILE *stream, ssize_t offset, int whence)
-{
-   if (!stream)
-      goto error;
-
-#if  defined(PSP)
-   if (sceIoLseek(stream->fd, (SceOff)offset, whence) == -1)
-      goto error;
-#else
-
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-      return fseek(stream->fp, (long)offset, whence);
-#endif
-
-#ifdef HAVE_MMAP
-   /* Need to check stream->mapped because this function is 
-    * called in filestream_open() */
-   if (stream->mapped && stream->hints & RFILE_HINT_MMAP)
-   {
-      /* fseek() returns error on under/overflow but allows cursor > EOF for
-         read-only file descriptors. */
-      switch (whence)
-      {
-         case SEEK_SET:
-            if (offset < 0)
-               goto error;
-
-            stream->mappos = offset;
-            break;
-
-         case SEEK_CUR:
-            if ((offset < 0 && stream->mappos + offset > stream->mappos) ||
-                  (offset > 0 && stream->mappos + offset < stream->mappos))
-               goto error;
-
-            stream->mappos += offset;
-            break;
-
-         case SEEK_END:
-            if (stream->mapsize + offset < stream->mapsize)
-               goto error;
-
-            stream->mappos = stream->mapsize + offset;
-            break;
-      }
-      return stream->mappos;
-   }
-#endif
-
-   if (lseek(stream->fd, offset, whence) < 0)
-      goto error;
-
-#endif
-
-   return 0;
-
-error:
-   return -1;
-}
-
-int filestream_eof(RFILE *stream)
-{
-   size_t current_position = filestream_tell(stream);
-   size_t end_position     = filestream_seek(stream, 0, SEEK_END);
-
-   filestream_seek(stream, current_position, SEEK_SET);
-
-   if (current_position >= end_position)
-      return 1;
-   return 0;
-}
-
-ssize_t filestream_tell(RFILE *stream)
-{
-   if (!stream)
-      goto error;
-#if  defined(PSP)
-  if (sceIoLseek(stream->fd, 0, SEEK_CUR) < 0)
-     goto error;
-#else
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-      return ftell(stream->fp);
-#endif
-#ifdef HAVE_MMAP
-   /* Need to check stream->mapped because this function 
-    * is called in filestream_open() */
-   if (stream->mapped && stream->hints & RFILE_HINT_MMAP)
-      return stream->mappos;
-#endif
-   if (lseek(stream->fd, 0, SEEK_CUR) < 0)
-      goto error;
-#endif
-
-   return 0;
-
-error:
-   return -1;
-}
-
-void filestream_rewind(RFILE *stream)
-{
-   filestream_seek(stream, 0L, SEEK_SET);
-}
-
-ssize_t filestream_read(RFILE *stream, void *s, size_t len)
-{
-   if (!stream || !s)
-      goto error;
-#if  defined(PSP)
-   return sceIoRead(stream->fd, s, len);
-#else
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-      return fread(s, 1, len, stream->fp);
-#endif
-#ifdef HAVE_MMAP
-   if (stream->hints & RFILE_HINT_MMAP)
-   {
-      if (stream->mappos > stream->mapsize)
-         goto error;
-
-      if (stream->mappos + len > stream->mapsize)
-         len = stream->mapsize - stream->mappos;
-
-      memcpy(s, &stream->mapped[stream->mappos], len);
-      stream->mappos += len;
-
-      return len;
-   }
-#endif
-   return read(stream->fd, s, len);
-#endif
-
-error:
-   return -1;
-}
-
-int filestream_flush(RFILE *stream)
-{
-#if defined(HAVE_BUFFERED_IO)
-   return fflush(stream->fp);
-#else
-   return 0;
-#endif
-}
-
-ssize_t filestream_write(RFILE *stream, const void *s, size_t len)
-{
-   if (!stream)
-      goto error;
-#if  defined(PSP)
-   return sceIoWrite(stream->fd, s, len);
-#else
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-      return fwrite(s, 1, len, stream->fp);
-#endif
-#ifdef HAVE_MMAP
-   if (stream->hints & RFILE_HINT_MMAP)
-      goto error;
-#endif
-   return write(stream->fd, s, len);
-#endif
-
-error:
-   return -1;
 }
 
 int filestream_putc(RFILE *stream, int c)
@@ -551,47 +267,6 @@ int filestream_printf(RFILE *stream, const char* format, ...)
 	return result;
 }
 
-int filestream_error(RFILE *stream)
-{
-	return ferror(stream->fp);
-}
-
-int filestream_close(RFILE *stream)
-{
-   if (!stream)
-      goto error;
-
-   if (stream->ext)
-      free(stream->ext);
-
-#if  defined(PSP)
-   if (stream->fd > 0)
-      sceIoClose(stream->fd);
-#else
-#if defined(HAVE_BUFFERED_IO)
-   if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-   {
-      if (stream->fp)
-         fclose(stream->fp);
-   }
-   else
-#endif
-#ifdef HAVE_MMAP
-      if (stream->hints & RFILE_HINT_MMAP)
-         munmap(stream->mapped, stream->mapsize);
-#endif
-
-   if (stream->fd > 0)
-      close(stream->fd);
-#endif
-   free(stream);
-
-   return 0;
-
-error:
-   return -1;
-}
-
 /**
  * filestream_read_file:
  * @path             : path to file.
@@ -602,12 +277,12 @@ error:
  *
  * Returns: number of items read, -1 on error.
  */
-int filestream_read_file(const char *path, void **buf, ssize_t *len)
+int filestream_read_file(const char *path, void **buf, uint64_t *len)
 {
-   ssize_t ret              = 0;
-   ssize_t content_buf_size = 0;
+   int64_t ret              = 0;
+   int64_t content_buf_size = 0;
    void *content_buf        = NULL;
-   RFILE *file              = filestream_open(path, RFILE_MODE_READ, -1);
+   RFILE *file              = filestream_open(path, RFILE_MODE_READ);
 
    if (!file)
    {
@@ -670,10 +345,10 @@ error:
  *
  * Returns: true (1) on success, false (0) otherwise.
  */
-bool filestream_write_file(const char *path, const void *data, ssize_t size)
+bool filestream_write_file(const char *path, const void *data, uint64_t size)
 {
-   ssize_t ret   = 0;
-   RFILE *file   = filestream_open(path, RFILE_MODE_WRITE, -1);
+   int64_t ret   = 0;
+   RFILE *file   = filestream_open(path, RFILE_MODE_WRITE);
    if (!file)
       return false;
 

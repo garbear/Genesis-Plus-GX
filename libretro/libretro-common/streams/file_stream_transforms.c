@@ -24,6 +24,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "libretro.h"
+
 RFILE* rfopen(const char *path, const char *mode)
 {
    unsigned int retro_mode = RFILE_MODE_READ_TEXT;
@@ -36,7 +38,7 @@ RFILE* rfopen(const char *path, const char *mode)
    if (strstr(mode, "+"))
       retro_mode = RFILE_MODE_READ_WRITE;
 
-   return filestream_open(path, retro_mode, -1);
+   return filestream_open(path, retro_mode);
 }
 
 int rfclose(RFILE* stream)
