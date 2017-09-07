@@ -36,7 +36,7 @@
 
 RETRO_BEGIN_DECLS
 
-typedef struct RFILE RFILE;
+typedef struct _libretro_iobuf RFILE;
 
 const char *filestream_get_name(RFILE *stream);
 
