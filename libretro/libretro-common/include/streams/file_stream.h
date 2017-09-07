@@ -38,7 +38,7 @@ RETRO_BEGIN_DECLS
 
 typedef struct _libretro_iobuf RFILE;
 
-const char *filestream_get_name(RFILE *stream);
+const char *filestream_get_path(RFILE *stream);
 
 const char *filestream_get_ext(RFILE *stream);
 
@@ -72,9 +72,9 @@ int filestream_getc(RFILE *stream);
 
 int filestream_putc(RFILE *stream, int c);
 
-int filestream_vprintf(RFILE *stream, const char* format, va_list args);
+uint64_t filestream_vprintf(RFILE *stream, const char* format, va_list args);
 
-int filestream_printf(RFILE *stream, const char* format, ...);
+uint64_t filestream_printf(RFILE *stream, const char* format, ...);
 
 int filestream_read_file(const char *path, void **buf, uint64_t *len);
 

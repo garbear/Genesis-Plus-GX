@@ -2168,9 +2168,7 @@ enum retro_file_access
 	RFILE_HINT_MMAP = 1 << 9  /* requires RFILE_MODE_READ */
 };
 
-typedef const char *(RETRO_CALLCONV *retro_file_get_name_t)(RFILE *stream);
-typedef const char *(RETRO_CALLCONV *retro_file_get_ext_t)(RFILE *stream);
-typedef long long int (RETRO_CALLCONV *retro_file_get_size_t)(RFILE *stream);
+typedef const char *(RETRO_CALLCONV *retro_file_get_path_t)(RFILE *stream);
 typedef RFILE *(RETRO_CALLCONV *retro_file_open_t)(const char *path, unsigned mode);
 typedef int (RETRO_CALLCONV *retro_file_close_t)(RFILE *stream);
 typedef int (RETRO_CALLCONV *retro_file_error_t)(RFILE *stream);
@@ -2180,9 +2178,7 @@ typedef int64_t (RETRO_CALLCONV *retro_file_read_t)(RFILE *stream, void *s, uint
 typedef int64_t (RETRO_CALLCONV *retro_file_write_t)(RFILE *stream, const void *s, uint64_t len);
 typedef int (RETRO_CALLCONV *retro_file_flush_t)(RFILE *stream);
 
-RETRO_API void retro_set_file_get_name(retro_file_get_name_t cb);
-RETRO_API void retro_set_file_get_ext(retro_file_get_ext_t cb);
-RETRO_API void retro_set_file_get_size(retro_file_get_size_t cb);
+RETRO_API void retro_set_file_get_path(retro_file_get_path_t cb);
 RETRO_API void retro_set_file_open(retro_file_open_t cb);
 RETRO_API void retro_set_file_close(retro_file_close_t cb);
 RETRO_API void retro_set_file_error(retro_file_error_t cb);

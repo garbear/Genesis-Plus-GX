@@ -31,9 +31,7 @@
 
 // Callbacks
 
-retro_file_get_name_t filestream_get_name_cb = NULL;
-retro_file_get_ext_t filestream_get_ext_cb = NULL;
-retro_file_get_size_t filestream_get_size_cb = NULL;
+retro_file_get_path_t filestream_get_path_cb = NULL;
 retro_file_open_t filestream_open_cb = NULL;
 retro_file_close_t filestream_close_cb = NULL;
 retro_file_error_t filestream_error_cb = NULL;
@@ -43,19 +41,9 @@ retro_file_read_t filestream_read_cb = NULL;
 retro_file_write_t filestream_write_cb = NULL;
 retro_file_flush_t filestream_flush_cb = NULL;
 
-void retro_set_file_get_name(retro_file_get_name_t cb)
+void retro_set_file_get_path(retro_file_get_path_t cb)
 {
-	filestream_get_name_cb = cb;
-}
-
-void retro_set_file_get_ext(retro_file_get_ext_t cb)
-{
-	filestream_get_ext_cb = cb;
-}
-
-void retro_set_file_get_size(retro_file_get_size_t cb)
-{
-	filestream_get_size_cb = cb;
+	filestream_get_path_cb = cb;
 }
 
 void retro_set_file_open(retro_file_open_t cb)
@@ -100,19 +88,31 @@ void retro_set_file_flush(retro_file_flush_t cb)
 
 // Callback wrappers
 
-const char *filestream_get_name(RFILE *stream)
+const char *filestream_get_path(RFILE *stream)
 {
-	return filestream_get_name_cb(stream);
+	return filestream_get_path_cb(stream);
 }
 
 const char *filestream_get_ext(RFILE *stream)
 {
-	return filestream_get_ext_cb(stream);
+	const char* path;
+	const char* output;
+
+	path = filestream_get_path(stream);
+	output = strrchr(path, '.');
+	return output;
 }
 
 long long int filestream_get_size(RFILE *stream)
 {
-	return filestream_get_size_cb(stream);
+	int64_t current_pos;
+	int64_t output;
+
+	current_pos = filestream_tell(stream);
+	filestream_seek(stream, 0, SEEK_END);
+	output = filestream_tell(stream);
+	filestream_seek(stream, current_pos, SEEK_SET);
+	return output;
 }
 
 RFILE *filestream_open(const char *path, unsigned mode)
@@ -159,8 +159,8 @@ int filestream_flush(RFILE *stream)
 
 int filestream_eof(RFILE *stream)
 {
-	size_t current_position = filestream_tell(stream);
-	size_t end_position = filestream_seek(stream, 0, SEEK_END);
+	int64_t current_position = filestream_tell(stream);
+	int64_t end_position = filestream_seek(stream, 0, SEEK_END);
 
 	filestream_seek(stream, current_position, SEEK_SET);
 
@@ -245,10 +245,10 @@ int filestream_putc(RFILE *stream, int c)
 #endif
 }
 
-int filestream_vprintf(RFILE *stream, const char* format, va_list args)
+uint64_t filestream_vprintf(RFILE *stream, const char* format, va_list args)
 {
 	static char buffer[8 * 1024];
-	int numChars = vsprintf(buffer, format, args);
+	uint64_t numChars = vsprintf(buffer, format, args);
 
 	if (numChars < 0)
 		return -1;
@@ -258,9 +258,9 @@ int filestream_vprintf(RFILE *stream, const char* format, va_list args)
 	return filestream_write(stream, buffer, numChars);
 }
 
-int filestream_printf(RFILE *stream, const char* format, ...)
+uint64_t filestream_printf(RFILE *stream, const char* format, ...)
 {
-	int result;
+	uint64_t result;
 	va_list vl;
 	va_start(vl, format);
 	result = filestream_vprintf(stream, format, vl);
@@ -300,7 +300,7 @@ int filestream_read_file(const char *path, void **buf, uint64_t *len)
 
    filestream_rewind(file);
 
-   content_buf = malloc(content_buf_size + 1);
+   content_buf = malloc((size_t)content_buf_size + 1);
 
    if (!content_buf)
       goto error;
