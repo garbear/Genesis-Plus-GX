@@ -49,11 +49,10 @@ The contents of this file would be part of the front end, not the core itself.
 #include <memmap.h>
 #include <retro_miscellaneous.h>
 
-struct RFILE
+struct _libretro_iobuf
 {
 	unsigned hints;
-	char *name;
-	char *ext;
+	char *path;
 	long long int size;
 #if defined(PSP)
 	SceUID fd;
@@ -78,25 +77,11 @@ struct RFILE
 #endif
 };
 
-const char *frontend_filestream_get_name(RFILE *stream)
+const char *frontend_filestream_get_path(RFILE *stream)
 {
 	if (!stream)
 		return NULL;
-	return stream->name;
-}
-
-const char *frontend_filestream_get_ext(RFILE *stream)
-{
-	if (!stream)
-		return NULL;
-	return stream->ext;
-}
-
-long long int frontend_filestream_get_size(RFILE *stream)
-{
-	if (!stream)
-		return 0;
-	return stream->size;
+	return stream->path;
 }
 
 RFILE *frontend_filestream_open(const char *path, unsigned mode)
@@ -234,8 +219,7 @@ RFILE *frontend_filestream_open(const char *path, unsigned mode)
 #endif
 
 	{
-		const char *ld = (const char*)strrchr(path, '.');
-		stream->ext = strdup(ld ? ld + 1 : "");
+		stream->path = strdup(path);
 	}
 
 	fseek(stream->fp, 0, SEEK_END);
@@ -253,9 +237,6 @@ int frontend_filestream_close(RFILE *stream)
 {
 	if (!stream)
 		goto error;
-
-	if (stream->ext)
-		free(stream->ext);
 
 #if  defined(PSP)
 	if (stream->fd > 0)
@@ -454,5 +435,5 @@ Setting callbacks
 */
 void callback_setup()
 {
-	retro_set_file_get_name(frontend_filestream_get_name);
+	retro_set_file_get_path(frontend_filestream_get_path);
 }
