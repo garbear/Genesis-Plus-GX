@@ -77,14 +77,7 @@ typedef struct fallback_iobuf
 #endif
 } fallback_iobuf;
 
-const char *frontend_filestream_get_path(fallback_iobuf *stream)
-{
-	if (!stream)
-		return NULL;
-	return stream->path;
-}
-
-fallback_iobuf *frontend_filestream_open(const char *path, unsigned mode)
+fallback_iobuf *fallback_filestream_open(const char *path, unsigned mode)
 {
 	int            flags = 0;
 	int         mode_int = 0;
@@ -233,7 +226,7 @@ error:
 	return NULL;
 }
 
-int frontend_filestream_close(fallback_iobuf *stream)
+int fallback_filestream_close(fallback_iobuf *stream)
 {
 	if (!stream)
 		goto error;
@@ -266,7 +259,7 @@ error:
 	return -1;
 }
 
-int frontend_filestream_error(fallback_iobuf *stream)
+int fallback_filestream_error(fallback_iobuf *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return ferror(stream->fp);
@@ -276,7 +269,7 @@ int frontend_filestream_error(fallback_iobuf *stream)
 #endif
 }
 
-int64_t frontend_filestream_tell(fallback_iobuf *stream)
+int64_t fallback_filestream_tell(fallback_iobuf *stream)
 {
 	if (!stream)
 		goto error;
@@ -304,7 +297,7 @@ error:
 	return -1;
 }
 
-int64_t frontend_filestream_seek(fallback_iobuf *stream, int64_t offset, int whence)
+int64_t fallback_filestream_seek(fallback_iobuf *stream, int64_t offset, int whence)
 {
 	if (!stream)
 		goto error;
@@ -365,7 +358,7 @@ error:
 	return -1;
 }
 
-int64_t frontend_filestream_read(fallback_iobuf *stream, void *s, uint64_t len)
+int64_t fallback_filestream_read(fallback_iobuf *stream, void *s, uint64_t len)
 {
 	if (!stream || !s)
 		goto error;
@@ -398,16 +391,7 @@ error:
 	return -1;
 }
 
-int frontend_filestream_flush(fallback_iobuf *stream)
-{
-#if defined(HAVE_BUFFERED_IO)
-	return fflush(stream->fp);
-#else
-	return 0;
-#endif
-}
-
-int64_t frontend_filestream_write(fallback_iobuf *stream, const void *s, uint64_t len)
+int64_t fallback_filestream_write(fallback_iobuf *stream, const void *s, uint64_t len)
 {
 	if (!stream)
 		goto error;
@@ -427,4 +411,20 @@ int64_t frontend_filestream_write(fallback_iobuf *stream, const void *s, uint64_
 
 error:
 	return -1;
+}
+
+int fallback_filestream_flush(fallback_iobuf *stream)
+{
+#if defined(HAVE_BUFFERED_IO)
+	return fflush(stream->fp);
+#else
+	return 0;
+#endif
+}
+
+const char *fallback_filestream_get_path(fallback_iobuf *stream)
+{
+	if (!stream)
+		return NULL;
+	return stream->path;
 }

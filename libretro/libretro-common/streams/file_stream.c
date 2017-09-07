@@ -28,6 +28,7 @@
 #include "libretro.h"
 
 #include <streams/file_stream.h>
+#include <streams/file_stream_fallbacks.h>
 
 // Callbacks
 
@@ -87,50 +88,96 @@ void retro_set_file_flush(retro_file_flush_t cb)
 }
 
 // Callback wrappers
+// Fallback functions are meant to be temporary and to allow cores to function until retroarch itself implements the callbacks.
 
 RFILE *filestream_open(const char *path, unsigned mode)
 {
-	return filestream_open_cb(path, mode);
+	if (filestream_open_cb != NULL)
+	{
+		return filestream_open_cb(path, mode);
+	}
+
+	return (RFILE*)fallback_filestream_open(path, mode);
 }
 
 int filestream_close(RFILE *stream)
 {
-	return filestream_close_cb(stream);
+	if (filestream_close_cb != NULL)
+	{
+		return filestream_close_cb(stream);
+	}
+
+	return fallback_filestream_close((fallback_iobuf*)stream);
 }
 
 int filestream_error(RFILE *stream)
 {
-	return filestream_error_cb(stream);
+	if (filestream_error_cb != NULL)
+	{
+		return filestream_error_cb(stream);
+	}
+
+	return fallback_filestream_error((fallback_iobuf*)stream);
 }
 
 int64_t filestream_tell(RFILE *stream)
 {
-	return filestream_tell_cb(stream);
+	if (filestream_tell_cb != NULL)
+	{
+		return filestream_tell_cb(stream);
+	}
+
+	return fallback_filestream_tell((fallback_iobuf*)stream);
 }
 
 int64_t filestream_seek(RFILE *stream, int64_t offset, int whence)
 {
-	return filestream_seek_cb(stream, offset, whence);
+	if (filestream_seek_cb != NULL)
+	{
+		return filestream_seek_cb(stream, offset, whence);
+	}
+
+	return fallback_filestream_seek((fallback_iobuf*)stream, offset, whence);
 }
 
 int64_t filestream_read(RFILE *stream, void *s, uint64_t len)
 {
-	return filestream_read_cb(stream, s, len);
+	if (filestream_read_cb != NULL)
+	{
+		return filestream_read_cb(stream, s, len);
+	}
+
+	return fallback_filestream_read((fallback_iobuf*)stream, s, len);
 }
 
 int64_t filestream_write(RFILE *stream, const void *s, uint64_t len)
 {
-	return filestream_write_cb(stream, s, len);
+	if (filestream_write_cb != NULL)
+	{
+		return filestream_write_cb(stream, s, len);
+	}
+
+	return fallback_filestream_write((fallback_iobuf*)stream, s, len);
 }
 
 int filestream_flush(RFILE *stream)
 {
-	return filestream_flush_cb(stream);
+	if (filestream_flush_cb != NULL)
+	{
+		return filestream_flush_cb(stream);
+	}
+
+	return fallback_filestream_flush((fallback_iobuf*)stream);
 }
 
 const char *filestream_get_path(RFILE *stream)
 {
-	return filestream_get_path_cb(stream);
+	if (filestream_get_path_cb != NULL)
+	{
+		return filestream_get_path_cb(stream);
+	}
+
+	return fallback_filestream_get_path((fallback_iobuf*)stream);
 }
 
 // Wrapper-based Implementations
