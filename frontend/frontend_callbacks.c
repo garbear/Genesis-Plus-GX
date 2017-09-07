@@ -49,7 +49,7 @@ The contents of this file would be part of the front end, not the core itself.
 #include <memmap.h>
 #include <retro_miscellaneous.h>
 
-struct _libretro_iobuf
+typedef struct fallback_iobuf
 {
 	unsigned hints;
 	char *path;
@@ -75,23 +75,23 @@ struct _libretro_iobuf
 #endif
 	int fd;
 #endif
-};
+} fallback_iobuf;
 
-const char *frontend_filestream_get_path(RFILE *stream)
+const char *frontend_filestream_get_path(fallback_iobuf *stream)
 {
 	if (!stream)
 		return NULL;
 	return stream->path;
 }
 
-RFILE *frontend_filestream_open(const char *path, unsigned mode)
+fallback_iobuf *frontend_filestream_open(const char *path, unsigned mode)
 {
 	int            flags = 0;
 	int         mode_int = 0;
 #if defined(HAVE_BUFFERED_IO)
 	const char *mode_str = NULL;
 #endif
-	RFILE        *stream = (RFILE*)calloc(1, sizeof(*stream));
+	fallback_iobuf        *stream = (fallback_iobuf*)calloc(1, sizeof(*stream));
 
 	if (!stream)
 		return NULL;
@@ -233,7 +233,7 @@ error:
 	return NULL;
 }
 
-int frontend_filestream_close(RFILE *stream)
+int frontend_filestream_close(fallback_iobuf *stream)
 {
 	if (!stream)
 		goto error;
@@ -266,7 +266,7 @@ error:
 	return -1;
 }
 
-int frontend_filestream_error(RFILE *stream)
+int frontend_filestream_error(fallback_iobuf *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return ferror(stream->fp);
@@ -276,7 +276,7 @@ int frontend_filestream_error(RFILE *stream)
 #endif
 }
 
-int64_t frontend_filestream_tell(RFILE *stream)
+int64_t frontend_filestream_tell(fallback_iobuf *stream)
 {
 	if (!stream)
 		goto error;
@@ -304,7 +304,7 @@ error:
 	return -1;
 }
 
-int64_t frontend_filestream_seek(RFILE *stream, int64_t offset, int whence)
+int64_t frontend_filestream_seek(fallback_iobuf *stream, int64_t offset, int whence)
 {
 	if (!stream)
 		goto error;
@@ -365,7 +365,7 @@ error:
 	return -1;
 }
 
-int64_t frontend_filestream_read(RFILE *stream, void *s, uint64_t len)
+int64_t frontend_filestream_read(fallback_iobuf *stream, void *s, uint64_t len)
 {
 	if (!stream || !s)
 		goto error;
@@ -398,7 +398,7 @@ error:
 	return -1;
 }
 
-int frontend_filestream_flush(RFILE *stream)
+int frontend_filestream_flush(fallback_iobuf *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return fflush(stream->fp);
@@ -407,7 +407,7 @@ int frontend_filestream_flush(RFILE *stream)
 #endif
 }
 
-int64_t frontend_filestream_write(RFILE *stream, const void *s, uint64_t len)
+int64_t frontend_filestream_write(fallback_iobuf *stream, const void *s, uint64_t len)
 {
 	if (!stream)
 		goto error;
@@ -427,13 +427,4 @@ int64_t frontend_filestream_write(RFILE *stream, const void *s, uint64_t len)
 
 error:
 	return -1;
-}
-
-
-/*
-Setting callbacks
-*/
-void callback_setup()
-{
-	retro_set_file_get_path(frontend_filestream_get_path);
 }

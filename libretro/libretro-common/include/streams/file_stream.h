@@ -38,12 +38,6 @@ RETRO_BEGIN_DECLS
 
 typedef struct _libretro_iobuf RFILE;
 
-const char *filestream_get_path(RFILE *stream);
-
-const char *filestream_get_ext(RFILE *stream);
-
-long long int filestream_get_size(RFILE *stream);
-
 RFILE *filestream_open(const char *path, unsigned mode);
 
 int filestream_close(RFILE *stream);
@@ -59,6 +53,12 @@ int64_t filestream_read(RFILE *stream, void *s, uint64_t len);
 int64_t filestream_write(RFILE *stream, const void *s, uint64_t len);
 
 int filestream_flush(RFILE *stream);
+
+const char *filestream_get_path(RFILE *stream);
+
+const char *filestream_get_ext(RFILE *stream);
+
+long long int filestream_get_size(RFILE *stream);
 
 int filestream_eof(RFILE *stream);
 

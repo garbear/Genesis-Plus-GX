@@ -88,33 +88,6 @@ void retro_set_file_flush(retro_file_flush_t cb)
 
 // Callback wrappers
 
-const char *filestream_get_path(RFILE *stream)
-{
-	return filestream_get_path_cb(stream);
-}
-
-const char *filestream_get_ext(RFILE *stream)
-{
-	const char* path;
-	const char* output;
-
-	path = filestream_get_path(stream);
-	output = strrchr(path, '.');
-	return output;
-}
-
-long long int filestream_get_size(RFILE *stream)
-{
-	int64_t current_pos;
-	int64_t output;
-
-	current_pos = filestream_tell(stream);
-	filestream_seek(stream, 0, SEEK_END);
-	output = filestream_tell(stream);
-	filestream_seek(stream, current_pos, SEEK_SET);
-	return output;
-}
-
 RFILE *filestream_open(const char *path, unsigned mode)
 {
 	return filestream_open_cb(path, mode);
@@ -155,7 +128,35 @@ int filestream_flush(RFILE *stream)
 	return filestream_flush_cb(stream);
 }
 
+const char *filestream_get_path(RFILE *stream)
+{
+	return filestream_get_path_cb(stream);
+}
+
 // Wrapper-based Implementations
+
+const char *filestream_get_ext(RFILE *stream)
+{
+	const char* path;
+	const char* output;
+
+	path = filestream_get_path(stream);
+	output = strrchr(path, '.');
+	return output;
+}
+
+long long int filestream_get_size(RFILE *stream)
+{
+	int64_t current_pos;
+	int64_t output;
+
+	filestream_flush(stream);
+	current_pos = filestream_tell(stream);
+	filestream_seek(stream, 0, SEEK_END);
+	output = filestream_tell(stream);
+	filestream_seek(stream, current_pos, SEEK_SET);
+	return output;
+}
 
 int filestream_eof(RFILE *stream)
 {
