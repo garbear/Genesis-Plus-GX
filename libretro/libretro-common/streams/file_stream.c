@@ -107,7 +107,7 @@ int filestream_close(RFILE *stream)
 		return filestream_close_cb(stream);
 	}
 
-	return fallback_filestream_close((fallback_iobuf*)stream);
+	return fallback_filestream_close((libretro_file_fallback*)stream);
 }
 
 int filestream_error(RFILE *stream)
@@ -117,7 +117,7 @@ int filestream_error(RFILE *stream)
 		return filestream_error_cb(stream);
 	}
 
-	return fallback_filestream_error((fallback_iobuf*)stream);
+	return fallback_filestream_error((libretro_file_fallback*)stream);
 }
 
 int64_t filestream_tell(RFILE *stream)
@@ -127,7 +127,7 @@ int64_t filestream_tell(RFILE *stream)
 		return filestream_tell_cb(stream);
 	}
 
-	return fallback_filestream_tell((fallback_iobuf*)stream);
+	return fallback_filestream_tell((libretro_file_fallback*)stream);
 }
 
 int64_t filestream_seek(RFILE *stream, int64_t offset, int whence)
@@ -137,7 +137,7 @@ int64_t filestream_seek(RFILE *stream, int64_t offset, int whence)
 		return filestream_seek_cb(stream, offset, whence);
 	}
 
-	return fallback_filestream_seek((fallback_iobuf*)stream, offset, whence);
+	return fallback_filestream_seek((libretro_file_fallback*)stream, offset, whence);
 }
 
 int64_t filestream_read(RFILE *stream, void *s, uint64_t len)
@@ -147,7 +147,7 @@ int64_t filestream_read(RFILE *stream, void *s, uint64_t len)
 		return filestream_read_cb(stream, s, len);
 	}
 
-	return fallback_filestream_read((fallback_iobuf*)stream, s, len);
+	return fallback_filestream_read((libretro_file_fallback*)stream, s, len);
 }
 
 int64_t filestream_write(RFILE *stream, const void *s, uint64_t len)
@@ -157,7 +157,7 @@ int64_t filestream_write(RFILE *stream, const void *s, uint64_t len)
 		return filestream_write_cb(stream, s, len);
 	}
 
-	return fallback_filestream_write((fallback_iobuf*)stream, s, len);
+	return fallback_filestream_write((libretro_file_fallback*)stream, s, len);
 }
 
 int filestream_flush(RFILE *stream)
@@ -167,7 +167,7 @@ int filestream_flush(RFILE *stream)
 		return filestream_flush_cb(stream);
 	}
 
-	return fallback_filestream_flush((fallback_iobuf*)stream);
+	return fallback_filestream_flush((libretro_file_fallback*)stream);
 }
 
 const char *filestream_get_path(RFILE *stream)
@@ -177,7 +177,7 @@ const char *filestream_get_path(RFILE *stream)
 		return filestream_get_path_cb(stream);
 	}
 
-	return fallback_filestream_get_path((fallback_iobuf*)stream);
+	return fallback_filestream_get_path((libretro_file_fallback*)stream);
 }
 
 // Wrapper-based Implementations

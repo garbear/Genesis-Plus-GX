@@ -25,24 +25,24 @@
 
 #include <stdint.h>
 
-typedef struct fallback_iobuf fallback_iobuf;
+typedef struct libretro_file_fallback libretro_file_fallback;
 
-fallback_iobuf *fallback_filestream_open(const char *path, unsigned mode);
+libretro_file_fallback *fallback_filestream_open(const char *path, unsigned mode);
 
-int fallback_filestream_close(fallback_iobuf *stream);
+int fallback_filestream_close(libretro_file_fallback *stream);
 
-int fallback_filestream_error(fallback_iobuf *stream);
+int fallback_filestream_error(libretro_file_fallback *stream);
 
-int64_t fallback_filestream_tell(fallback_iobuf *stream);
+int64_t fallback_filestream_tell(libretro_file_fallback *stream);
 
-int64_t fallback_filestream_seek(fallback_iobuf *stream, int64_t offset, int whence);
+int64_t fallback_filestream_seek(libretro_file_fallback *stream, int64_t offset, int whence);
 
-int64_t fallback_filestream_read(fallback_iobuf *stream, void *s, uint64_t len);
+int64_t fallback_filestream_read(libretro_file_fallback *stream, void *s, uint64_t len);
 
-int64_t fallback_filestream_write(fallback_iobuf *stream, const void *s, uint64_t len);
+int64_t fallback_filestream_write(libretro_file_fallback *stream, const void *s, uint64_t len);
 
-int fallback_filestream_flush(fallback_iobuf *stream);
+int fallback_filestream_flush(libretro_file_fallback *stream);
 
-const char *fallback_filestream_get_path(fallback_iobuf *stream);
+const char *fallback_filestream_get_path(libretro_file_fallback *stream);
 
 #endif

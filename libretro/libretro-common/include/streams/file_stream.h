@@ -36,7 +36,7 @@
 
 RETRO_BEGIN_DECLS
 
-typedef struct _libretro_iobuf RFILE;
+typedef struct libretro_file RFILE;
 
 RFILE *filestream_open(const char *path, unsigned mode);
 

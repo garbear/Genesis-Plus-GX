@@ -28,7 +28,7 @@
 
 RETRO_BEGIN_DECLS
 
-typedef struct _libretro_iobuf RFILE;
+typedef struct libretro_file RFILE;
 
 #define FILE RFILE
 

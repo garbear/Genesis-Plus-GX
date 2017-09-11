@@ -49,7 +49,7 @@ The contents of this file would be part of the front end, not the core itself.
 #include <memmap.h>
 #include <retro_miscellaneous.h>
 
-typedef struct fallback_iobuf
+typedef struct libretro_file_fallback
 {
 	unsigned hints;
 	char *path;
@@ -75,16 +75,16 @@ typedef struct fallback_iobuf
 #endif
 	int fd;
 #endif
-} fallback_iobuf;
+} libretro_file_fallback;
 
-fallback_iobuf *fallback_filestream_open(const char *path, unsigned mode)
+libretro_file_fallback *fallback_filestream_open(const char *path, unsigned mode)
 {
 	int            flags = 0;
 	int         mode_int = 0;
 #if defined(HAVE_BUFFERED_IO)
 	const char *mode_str = NULL;
 #endif
-	fallback_iobuf        *stream = (fallback_iobuf*)calloc(1, sizeof(*stream));
+	libretro_file_fallback        *stream = (libretro_file_fallback*)calloc(1, sizeof(*stream));
 
 	if (!stream)
 		return NULL;
@@ -226,7 +226,7 @@ error:
 	return NULL;
 }
 
-int fallback_filestream_close(fallback_iobuf *stream)
+int fallback_filestream_close(libretro_file_fallback *stream)
 {
 	if (!stream)
 		goto error;
@@ -259,7 +259,7 @@ error:
 	return -1;
 }
 
-int fallback_filestream_error(fallback_iobuf *stream)
+int fallback_filestream_error(libretro_file_fallback *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return ferror(stream->fp);
@@ -269,7 +269,7 @@ int fallback_filestream_error(fallback_iobuf *stream)
 #endif
 }
 
-int64_t fallback_filestream_tell(fallback_iobuf *stream)
+int64_t fallback_filestream_tell(libretro_file_fallback *stream)
 {
 	if (!stream)
 		goto error;
@@ -297,7 +297,7 @@ error:
 	return -1;
 }
 
-int64_t fallback_filestream_seek(fallback_iobuf *stream, int64_t offset, int whence)
+int64_t fallback_filestream_seek(libretro_file_fallback *stream, int64_t offset, int whence)
 {
 	if (!stream)
 		goto error;
@@ -358,7 +358,7 @@ error:
 	return -1;
 }
 
-int64_t fallback_filestream_read(fallback_iobuf *stream, void *s, uint64_t len)
+int64_t fallback_filestream_read(libretro_file_fallback *stream, void *s, uint64_t len)
 {
 	if (!stream || !s)
 		goto error;
@@ -391,7 +391,7 @@ error:
 	return -1;
 }
 
-int64_t fallback_filestream_write(fallback_iobuf *stream, const void *s, uint64_t len)
+int64_t fallback_filestream_write(libretro_file_fallback *stream, const void *s, uint64_t len)
 {
 	if (!stream)
 		goto error;
@@ -413,7 +413,7 @@ error:
 	return -1;
 }
 
-int fallback_filestream_flush(fallback_iobuf *stream)
+int fallback_filestream_flush(libretro_file_fallback *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return fflush(stream->fp);
@@ -422,7 +422,7 @@ int fallback_filestream_flush(fallback_iobuf *stream)
 #endif
 }
 
-const char *fallback_filestream_get_path(fallback_iobuf *stream)
+const char *fallback_filestream_get_path(libretro_file_fallback *stream)
 {
 	if (!stream)
 		return NULL;
