@@ -25,70 +25,63 @@
 #include <string.h>
 #include <errno.h>
 
-#include "libretro.h"
-
 #include <streams/file_stream.h>
 #include <streams/file_stream_fallbacks.h>
 
-// Callbacks
+/* Callbacks */
 
-retro_file_get_path_t filestream_get_path_cb = NULL;
-retro_file_open_t filestream_open_cb = NULL;
-retro_file_close_t filestream_close_cb = NULL;
-retro_file_error_t filestream_error_cb = NULL;
-retro_file_tell_t filestream_tell_cb = NULL;
-retro_file_seek_t filestream_seek_cb = NULL;
-retro_file_read_t filestream_read_cb = NULL;
-retro_file_write_t filestream_write_cb = NULL;
-retro_file_flush_t filestream_flush_cb = NULL;
+retro_vfs_file_get_path_t filestream_get_path_cb = NULL;
+retro_vfs_file_open_t filestream_open_cb = NULL;
+retro_vfs_file_close_t filestream_close_cb = NULL;
+retro_vfs_file_error_t filestream_error_cb = NULL;
+retro_vfs_file_tell_t filestream_tell_cb = NULL;
+retro_vfs_file_seek_t filestream_seek_cb = NULL;
+retro_vfs_file_read_t filestream_read_cb = NULL;
+retro_vfs_file_write_t filestream_write_cb = NULL;
+retro_vfs_file_flush_t filestream_flush_cb = NULL;
 
-void retro_set_file_get_path(retro_file_get_path_t cb)
+/* VFS Initialization */
+
+void filestream_vfs_init(retro_environment_t env_cb)
 {
-	filestream_get_path_cb = cb;
+	filestream_get_path_cb = NULL;
+	filestream_open_cb = NULL;
+	filestream_close_cb = NULL;
+	filestream_error_cb = NULL;
+	filestream_tell_cb = NULL;
+	filestream_seek_cb = NULL;
+	filestream_read_cb = NULL;
+	filestream_write_cb = NULL;
+	filestream_flush_cb = NULL;
+
+	if (env_cb == NULL)
+	{
+		return;
+	}
+
+	struct retro_vfs_interface_info vfs_info;
+	vfs_info.required_interface_version = 1;
+	vfs_info.iface = NULL;
+	env_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_info);
+
+	struct retro_vfs_interface* vfs_iface = vfs_info.iface;
+	if (vfs_iface == NULL)
+	{
+		return;
+	}
+
+	filestream_get_path_cb = vfs_iface->retro_vfs_file_get_path;
+	filestream_open_cb = vfs_iface->retro_vfs_file_open;
+	filestream_close_cb = vfs_iface->retro_vfs_file_close;
+	filestream_error_cb = vfs_iface->retro_vfs_file_error;
+	filestream_tell_cb = vfs_iface->retro_vfs_file_tell;
+	filestream_seek_cb = vfs_iface->retro_vfs_file_seek;
+	filestream_read_cb = vfs_iface->retro_vfs_file_read;
+	filestream_write_cb = vfs_iface->retro_vfs_file_write;
+	filestream_flush_cb = vfs_iface->retro_vfs_file_flush;
 }
 
-void retro_set_file_open(retro_file_open_t cb)
-{
-	filestream_open_cb = cb;
-}
-
-void retro_set_file_close(retro_file_close_t cb)
-{
-	filestream_close_cb = cb;
-}
-
-void retro_set_file_error(retro_file_error_t cb)
-{
-	filestream_error_cb = cb;
-}
-
-void retro_set_file_tell(retro_file_tell_t cb)
-{
-	filestream_tell_cb = cb;
-}
-
-void retro_set_file_seek(retro_file_seek_t cb)
-{
-	filestream_seek_cb = cb;
-}
-
-void retro_set_file_read(retro_file_read_t cb)
-{
-	filestream_read_cb = cb;
-}
-
-void retro_set_file_write(retro_file_write_t cb)
-{
-	filestream_write_cb = cb;
-}
-
-void retro_set_file_flush(retro_file_flush_t cb)
-{
-	filestream_flush_cb = cb;
-}
-
-// Callback wrappers
-// Fallback functions are meant to be temporary and to allow cores to function until retroarch itself implements the callbacks.
+/* Callback wrappers */
 
 RFILE *filestream_open(const char *path, unsigned mode)
 {
@@ -180,7 +173,7 @@ const char *filestream_get_path(RFILE *stream)
 	return fallback_filestream_get_path((libretro_file_fallback*)stream);
 }
 
-// Wrapper-based Implementations
+/* Wrapper-based Implementations */
 
 const char *filestream_get_ext(RFILE *stream)
 {

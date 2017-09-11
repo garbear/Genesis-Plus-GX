@@ -1006,6 +1006,82 @@ struct retro_hw_render_context_negotiation_interface
                                             * recognize or support. Should be set in either retro_init or retro_load_game, but not both.
                                             */
 
+/* VFS functionality */
+typedef struct libretro_file RFILE;
+
+enum retro_file_access
+{
+	RFILE_MODE_READ = 0,
+	RFILE_MODE_READ_TEXT,
+	RFILE_MODE_WRITE,
+	RFILE_MODE_READ_WRITE,
+
+	/* There is no garantee these requests will be attended. */
+	RFILE_HINT_UNBUFFERED = 1 << 8,
+	RFILE_HINT_MMAP = 1 << 9  /* requires RFILE_MODE_READ */
+};
+
+typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(RFILE *stream);
+typedef RFILE *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, unsigned mode);
+typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(RFILE *stream);
+typedef int (RETRO_CALLCONV *retro_vfs_file_error_t)(RFILE *stream);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(RFILE *stream);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_seek_t)(RFILE *stream, int64_t offset, int whence);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(RFILE *stream, void *s, uint64_t len);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(RFILE *stream, const void *s, uint64_t len);
+typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(RFILE *stream);
+
+struct retro_vfs_interface
+{
+	retro_vfs_file_get_path_t retro_vfs_file_get_path;
+	retro_vfs_file_open_t retro_vfs_file_open;
+	retro_vfs_file_close_t retro_vfs_file_close;
+	retro_vfs_file_error_t retro_vfs_file_error;
+	retro_vfs_file_tell_t retro_vfs_file_tell;
+	retro_vfs_file_seek_t retro_vfs_file_seek;
+	retro_vfs_file_read_t retro_vfs_file_read;
+	retro_vfs_file_write_t retro_vfs_file_write;
+	retro_vfs_file_flush_t retro_vfs_file_flush;
+};
+
+struct retro_vfs_interface_info
+{
+   /* Set by core, frontend won't use VFS unless it supports at least this version. */
+   unsigned required_interface_version;
+
+   /* Frontend writes interface pointer here. The frontend also sets the actual
+    * version, must be at least requested_interface_version. */
+   struct retro_vfs_interface *iface;
+};
+
+#define RETRO_ENVIRONMENT_GET_VFS_INTERFACE 45
+                                           /* struct retro_vfs_interface_info * --
+                                            * Gets access to the VFS interface.
+                                            *
+                                            * This interface exposes the following schemes that a core may use:
+                                            *
+                                            * file://
+                                            *     The path represents a true path on the file system. This allows
+                                            *     the core to use VFS for all I/O.
+                                            *
+                                            * retro://
+                                            *     A special scheme that allows for location-agnostic I/O. Cores
+                                            *     have access to the following locations:
+                                            *
+                                            *     retro://game/
+                                            *         The folder containing the loaded game. If no game is loaded,
+                                            *         listing this directory will return empty. Read-only.
+                                            *
+                                            *     retro://assets/
+                                            *         The assets folder for standalone applications. Read-only.
+                                            *
+                                            *     retro://system/
+                                            *         The "system" directory used to store system-specific
+                                            *         content such as BIOSes, configuration data, etc. Read-only.
+                                            *
+                                            *     retro://save/
+                                            *         The saves directory. Read-write.
+                                            */
 
 #define RETRO_MEMDESC_CONST     (1 << 0)   /* The frontend will never change this memory area once retro_load_game has returned. */
 #define RETRO_MEMDESC_BIGENDIAN (1 << 1)   /* The memory area contains big endian data. Default is little endian. */
@@ -2152,41 +2228,6 @@ RETRO_API unsigned retro_get_region(void);
 /* Gets region of memory. */
 RETRO_API void *retro_get_memory_data(unsigned id);
 RETRO_API size_t retro_get_memory_size(unsigned id);
-
-/* VFS functionality */
-typedef struct libretro_file RFILE;
-
-enum retro_file_access
-{
-	RFILE_MODE_READ = 0,
-	RFILE_MODE_READ_TEXT,
-	RFILE_MODE_WRITE,
-	RFILE_MODE_READ_WRITE,
-
-	/* There is no garantee these requests will be attended. */
-	RFILE_HINT_UNBUFFERED = 1 << 8,
-	RFILE_HINT_MMAP = 1 << 9  /* requires RFILE_MODE_READ */
-};
-
-typedef const char *(RETRO_CALLCONV *retro_file_get_path_t)(RFILE *stream);
-typedef RFILE *(RETRO_CALLCONV *retro_file_open_t)(const char *path, unsigned mode);
-typedef int (RETRO_CALLCONV *retro_file_close_t)(RFILE *stream);
-typedef int (RETRO_CALLCONV *retro_file_error_t)(RFILE *stream);
-typedef int64_t (RETRO_CALLCONV *retro_file_tell_t)(RFILE *stream);
-typedef int64_t (RETRO_CALLCONV *retro_file_seek_t)(RFILE *stream, int64_t offset, int whence);
-typedef int64_t (RETRO_CALLCONV *retro_file_read_t)(RFILE *stream, void *s, uint64_t len);
-typedef int64_t (RETRO_CALLCONV *retro_file_write_t)(RFILE *stream, const void *s, uint64_t len);
-typedef int (RETRO_CALLCONV *retro_file_flush_t)(RFILE *stream);
-
-RETRO_API void retro_set_file_get_path(retro_file_get_path_t cb);
-RETRO_API void retro_set_file_open(retro_file_open_t cb);
-RETRO_API void retro_set_file_close(retro_file_close_t cb);
-RETRO_API void retro_set_file_error(retro_file_error_t cb);
-RETRO_API void retro_set_file_tell(retro_file_tell_t cb);
-RETRO_API void retro_set_file_seek(retro_file_seek_t cb);
-RETRO_API void retro_set_file_read(retro_file_read_t cb);
-RETRO_API void retro_set_file_write(retro_file_write_t cb);
-RETRO_API void retro_set_file_flush(retro_file_flush_t cb);
 
 #ifdef __cplusplus
 }

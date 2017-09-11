@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 
+#include <libretro.h>
 #include <retro_common_api.h>
 
 #include <boolean.h>
@@ -35,6 +36,8 @@
 #include <stdarg.h>
 
 RETRO_BEGIN_DECLS
+
+void filestream_vfs_init(retro_environment_t env_cb);
 
 typedef struct libretro_file RFILE;
 
