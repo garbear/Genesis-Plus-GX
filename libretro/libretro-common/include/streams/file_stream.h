@@ -39,7 +39,7 @@ RETRO_BEGIN_DECLS
 
 void filestream_vfs_init(retro_environment_t env_cb);
 
-RFILE *filestream_open(const char *path, retro_file_access access, bool binary_mode, bool create_new, bool replace_existing);
+RFILE *filestream_open(const char *path, retro_file_access access);
 
 int filestream_close(RFILE *stream);
 
@@ -50,8 +50,6 @@ int64_t filestream_size(RFILE *stream);
 int64_t filestream_tell(RFILE *stream);
 
 int64_t filestream_seek(RFILE *stream, int64_t offset);
-
-int64_t filestream_truncate(RFILE *stream, uint64_t size);
 
 int64_t filestream_read(RFILE *stream, void *s, uint64_t len);
 

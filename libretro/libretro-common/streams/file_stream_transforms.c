@@ -24,35 +24,22 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "libretro.h"
+#include <libretro.h>
+#include <stdio.h>
 
 RFILE* rfopen(const char *path, const char *mode)
 {
-   unsigned int file_access = RFILE_ACCESS_READ_ONLY;
-   bool binary_mode = false;
-   bool create_new = false;
-   bool replace_existing = false;
-
-   if (strstr(mode, "b"))
-   {
-	   binary_mode = true;
-   }
-
+   unsigned int retro_mode = RFILE_MODE_READ_TEXT;
    if (strstr(mode, "r"))
-   {
-	   if (strstr(mode, "+"))
-	   {
-		   file_access = RFILE_ACCESS_READ_WRITE;
-	   }
-   }
-   else if (strstr(mode, "w") || strstr(mode, "+"))
-   {
-	   file_access = RFILE_ACCESS_READ_WRITE;
-	   create_new = true;
-	   replace_existing = true;
-   }
+      if (strstr(mode, "b"))
+         retro_mode = RFILE_MODE_READ;
 
-   return filestream_open(path, file_access, binary_mode, create_new, replace_existing);
+   if (strstr(mode, "w"))
+      retro_mode = RFILE_MODE_WRITE;
+   if (strstr(mode, "+"))
+      retro_mode = RFILE_MODE_READ_WRITE;
+
+   return filestream_open(path, retro_mode);
 }
 
 int rfclose(RFILE* stream)
@@ -67,7 +54,23 @@ long rftell(RFILE* stream)
 
 int rfseek(RFILE* stream, long offset, int origin)
 {
-   return (int)filestream_seek(stream, offset, origin);
+
+	switch (origin)
+	{
+	case SEEK_CUR:
+	{
+		long position = (long)filestream_tell(stream);
+		offset += position;
+		break;
+	}
+	case SEEK_END:
+	{
+		long size = (long)filestream_size(stream);
+		offset = size - offset;
+	}
+	}
+
+	return (int)filestream_seek(stream, offset);
 }
 
 size_t rfread(void* buffer,

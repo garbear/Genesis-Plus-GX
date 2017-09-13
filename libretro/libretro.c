@@ -170,7 +170,7 @@ int load_archive(char *filename, unsigned char *buffer, int maxsize, char *exten
   int size, left;
 
   /* Open file */
-  RFILE *fd = filestream_open(filename, RFILE_ACCESS_READ_ONLY, true, false, false);
+  RFILE *fd = filestream_open(filename, RFILE_MODE_READ);
 
   if (!fd)
   {
@@ -194,7 +194,7 @@ int load_archive(char *filename, unsigned char *buffer, int maxsize, char *exten
   }
 
   /* Get file size */
-  size = filestream_get_size(fd);
+  size = filestream_size(fd);
 
   /* size limit */
   if (size > MAXROMSIZE)
@@ -544,13 +544,13 @@ static void bram_load(void)
     switch (region_code)
     {
        case REGION_JAPAN_NTSC:
-          fp = filestream_open(CD_BRAM_JP, RFILE_ACCESS_READ_ONLY, true, false, false);
+          fp = filestream_open(CD_BRAM_JP, RFILE_MODE_READ);
           break;
        case REGION_EUROPE:
-          fp = filestream_open(CD_BRAM_EU, RFILE_ACCESS_READ_ONLY, true, false, false);
+          fp = filestream_open(CD_BRAM_EU, RFILE_MODE_READ);
           break;
        case REGION_USA:
-          fp = filestream_open(CD_BRAM_US, RFILE_ACCESS_READ_ONLY, true, false, false);
+          fp = filestream_open(CD_BRAM_US, RFILE_MODE_READ);
           break;
        default:
           return;
@@ -590,7 +590,7 @@ static void bram_load(void)
     /* automatically load cartridge backup RAM (if enabled) */
     if (scd.cartridge.id)
     {
-      fp = filestream_open(CART_BRAM, RFILE_ACCESS_READ_ONLY, true, false, false);
+      fp = filestream_open(CART_BRAM, RFILE_MODE_READ);
       if (fp != NULL)
       {
         int filesize = scd.cartridge.mask + 1;
@@ -646,13 +646,13 @@ static void bram_save(void)
         switch (region_code)
         {
           case REGION_JAPAN_NTSC:
-            fp = filestream_open(CD_BRAM_JP, RFILE_ACCESS_READ_WRITE, true, true, true);
+            fp = filestream_open(CD_BRAM_JP, RFILE_MODE_WRITE);
             break;
           case REGION_EUROPE:
-            fp = filestream_open(CD_BRAM_EU, RFILE_ACCESS_READ_WRITE, true, true, true);
+            fp = filestream_open(CD_BRAM_EU, RFILE_MODE_WRITE);
             break;
           case REGION_USA:
-            fp = filestream_open(CD_BRAM_US, RFILE_ACCESS_READ_WRITE, true, true, true);
+            fp = filestream_open(CD_BRAM_US, RFILE_MODE_WRITE);
             break;
           default:
             return;
@@ -675,7 +675,7 @@ static void bram_save(void)
       /* check if it is correctly formatted before saving */
       if (!memcmp(scd.cartridge.area + scd.cartridge.mask + 1 - 0x20, brm_format + 0x20, 0x20))
       {
-        fp = filestream_open(CART_BRAM, RFILE_ACCESS_READ_WRITE, true, true, true);
+        fp = filestream_open(CART_BRAM, RFILE_MODE_WRITE);
         if (fp != NULL)
         {
           int filesize = scd.cartridge.mask + 1;

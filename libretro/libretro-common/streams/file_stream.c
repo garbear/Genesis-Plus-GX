@@ -37,7 +37,6 @@ retro_vfs_file_error_t filestream_error_cb = NULL;
 retro_vfs_file_size_t filestream_size_cb = NULL;
 retro_vfs_file_tell_t filestream_tell_cb = NULL;
 retro_vfs_file_seek_t filestream_seek_cb = NULL;
-retro_vfs_file_truncate_t filestream_truncate_cb = NULL;
 retro_vfs_file_read_t filestream_read_cb = NULL;
 retro_vfs_file_write_t filestream_write_cb = NULL;
 retro_vfs_file_flush_t filestream_flush_cb = NULL;
@@ -53,7 +52,6 @@ void filestream_vfs_init(retro_environment_t env_cb)
 	filestream_tell_cb = NULL;
 	filestream_size_cb = NULL;
 	filestream_seek_cb = NULL;
-	filestream_truncate_cb = NULL;
 	filestream_read_cb = NULL;
 	filestream_write_cb = NULL;
 	filestream_flush_cb = NULL;
@@ -81,7 +79,6 @@ void filestream_vfs_init(retro_environment_t env_cb)
 	filestream_size_cb = vfs_iface->retro_vfs_file_size;
 	filestream_tell_cb = vfs_iface->retro_vfs_file_tell;
 	filestream_seek_cb = vfs_iface->retro_vfs_file_seek;
-	filestream_truncate_cb = vfs_iface->retro_vfs_file_truncate;
 	filestream_read_cb = vfs_iface->retro_vfs_file_read;
 	filestream_write_cb = vfs_iface->retro_vfs_file_write;
 	filestream_flush_cb = vfs_iface->retro_vfs_file_flush;
@@ -89,14 +86,14 @@ void filestream_vfs_init(retro_environment_t env_cb)
 
 /* Callback wrappers */
 
-RFILE *filestream_open(const char *path, retro_file_access access, bool binary_mode, bool create_new, bool replace_existing)
+RFILE *filestream_open(const char *path, retro_file_access access)
 {
 	if (filestream_open_cb != NULL)
 	{
-		return filestream_open_cb(path, access, binary_mode, create_new, replace_existing);
+		return filestream_open_cb(path, access);
 	}
 
-	return (RFILE*)retro_vfs_file_open_impl(path, access, binary_mode, create_new, replace_existing);
+	return (RFILE*)retro_vfs_file_open_impl(path, access);
 }
 
 int filestream_close(RFILE *stream)
@@ -148,16 +145,6 @@ int64_t filestream_seek(RFILE *stream, int64_t offset)
 	}
 
 	return retro_vfs_file_seek_impl((libretro_vfs_file*)stream, offset);
-}
-
-int64_t filestream_truncate(RFILE *stream, uint64_t size)
-{
-	if (filestream_truncate_cb != NULL)
-	{
-		return filestream_truncate_cb(stream, size);
-	}
-
-	return retro_vfs_file_truncate_impl((libretro_vfs_file*)stream, size);
 }
 
 int64_t filestream_read(RFILE *stream, void *s, uint64_t len)
@@ -336,7 +323,7 @@ int filestream_read_file(const char *path, void **buf, uint64_t *len)
    int64_t ret              = 0;
    int64_t content_buf_size = 0;
    void *content_buf        = NULL;
-   RFILE *file              = filestream_open(path, RFILE_ACCESS_READ_ONLY, true, false, false);
+   RFILE *file              = filestream_open(path, RFILE_MODE_READ);
 
    if (!file)
    {
@@ -403,7 +390,7 @@ error:
 bool filestream_write_file(const char *path, const void *data, uint64_t size)
 {
    int64_t ret   = 0;
-   RFILE *file   = filestream_open(path, RFILE_ACCESS_READ_WRITE, true, true, true);
+   RFILE *file   = filestream_open(path, RFILE_MODE_WRITE);
    if (!file)
       return false;
 

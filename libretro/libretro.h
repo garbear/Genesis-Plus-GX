@@ -1011,18 +1011,19 @@ typedef struct RFILE RFILE;
 
 typedef enum retro_file_access
 {
-	RFILE_ACCESS_READ_ONLY = 0,
-	RFILE_ACCESS_READ_WRITE,
+	RFILE_MODE_READ_TEXT,
+	RFILE_MODE_READ,
+	RFILE_MODE_WRITE,
+	RFILE_MODE_READ_WRITE
 } retro_file_access;
 
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(RFILE *stream);
-typedef RFILE *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, retro_file_access access, bool binary_mode, bool create_new, bool replace_existing);
+typedef RFILE *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, retro_file_access access);
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(RFILE *stream);
 typedef int (RETRO_CALLCONV *retro_vfs_file_error_t)(RFILE *stream);
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_size_t)(RFILE *stream);
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(RFILE *stream);
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_seek_t)(RFILE *stream, int64_t offset);
-typedef int64_t (RETRO_CALLCONV *retro_vfs_file_truncate_t)(RFILE *stream, uint64_t size);
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(RFILE *stream, void *s, uint64_t len);
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(RFILE *stream, const void *s, uint64_t len);
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(RFILE *stream);
@@ -1036,7 +1037,6 @@ typedef struct retro_vfs_interface
 	retro_vfs_file_size_t retro_vfs_file_size;
 	retro_vfs_file_tell_t retro_vfs_file_tell;
 	retro_vfs_file_seek_t retro_vfs_file_seek;
-	retro_vfs_file_truncate_t retro_vfs_file_truncate;
 	retro_vfs_file_read_t retro_vfs_file_read;
 	retro_vfs_file_write_t retro_vfs_file_write;
 	retro_vfs_file_flush_t retro_vfs_file_flush;

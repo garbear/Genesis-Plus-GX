@@ -49,10 +49,12 @@ The contents of this file would be part of the front end, not the core itself.
 #include <memmap.h>
 #include <retro_miscellaneous.h>
 
+const unsigned HINTS_ACCESS_MASK = 0xff;
+
 enum libretro_file_hints
 {
-	RFILE_HINT_MMAP = 1 << 9,
-	RFILE_HINT_UNBUFFERED = 1 << 10
+	RFILE_HINT_MMAP = 1 << 8,
+	RFILE_HINT_UNBUFFERED = 1 << 9
 };
 
 struct libretro_vfs_file
@@ -83,6 +85,8 @@ struct libretro_vfs_file
 #endif
 };
 
+int64_t retro_vfs_file_seek_internal(libretro_vfs_file *stream, int64_t offset, int whence);
+
 libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 {
 	int            flags = 0;
@@ -101,13 +105,13 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 	stream->hints = mode;
 
 #ifdef HAVE_MMAP
-	if (stream->hints & RFILE_HINT_MMAP && (stream->hints & 0xff) == RFILE_MODE_READ)
+	if (stream->hints & RFILE_HINT_MMAP && (stream->hints & HINTS_ACCESS_MASK) == RFILE_MODE_READ)
 		stream->hints |= RFILE_HINT_UNBUFFERED;
 	else
 #endif
 		stream->hints &= ~RFILE_HINT_MMAP;
 
-	switch (mode & 0xff)
+	switch (mode & HINTS_ACCESS_MASK)
 	{
 	case RFILE_MODE_READ_TEXT:
 #if  defined(PSP)
@@ -277,6 +281,11 @@ int retro_vfs_file_error_impl(libretro_vfs_file *stream)
 
 int64_t retro_vfs_file_size_impl(libretro_vfs_file *stream)
 {
+	int64_t ret = retro_vfs_file_seek_internal(stream, 0, SEEK_END);
+	if (ret == -1)
+		return -1;
+
+	return retro_vfs_file_tell_impl(stream);
 }
 
 int64_t retro_vfs_file_tell_impl(libretro_vfs_file *stream)
@@ -309,67 +318,7 @@ error:
 
 int64_t retro_vfs_file_seek_impl(libretro_vfs_file *stream, int64_t offset)
 {
-	if (!stream)
-		goto error;
-
-#if  defined(PSP)
-	if (sceIoLseek(stream->fd, (SceOff)offset, whence) == -1)
-		goto error;
-#else
-
-#if defined(HAVE_BUFFERED_IO)
-	if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-		return fseek(stream->fp, (long)offset, whence);
-#endif
-
-#ifdef HAVE_MMAP
-	/* Need to check stream->mapped because this function is
-	* called in filestream_open() */
-	if (stream->mapped && stream->hints & RFILE_HINT_MMAP)
-	{
-		/* fseek() returns error on under/overflow but allows cursor > EOF for
-		read-only file descriptors. */
-		switch (whence)
-		{
-		case SEEK_SET:
-			if (offset < 0)
-				goto error;
-
-			stream->mappos = offset;
-			break;
-
-		case SEEK_CUR:
-			if ((offset < 0 && stream->mappos + offset > stream->mappos) ||
-				(offset > 0 && stream->mappos + offset < stream->mappos))
-				goto error;
-
-			stream->mappos += offset;
-			break;
-
-		case SEEK_END:
-			if (stream->mapsize + offset < stream->mapsize)
-				goto error;
-
-			stream->mappos = stream->mapsize + offset;
-			break;
-		}
-		return stream->mappos;
-	}
-#endif
-
-	if (lseek(stream->fd, offset, whence) < 0)
-		goto error;
-
-#endif
-
-	return 0;
-
-error:
-	return -1;
-}
-
-int64_t retro_vfs_file_truncate_impl(libretro_vfs_file *stream, uint64_t size)
-{
+	return retro_vfs_file_seek_internal(stream, offset, SEEK_SET);
 }
 
 int64_t retro_vfs_file_read_impl(libretro_vfs_file *stream, void *s, uint64_t len)
@@ -430,10 +379,13 @@ error:
 int retro_vfs_file_flush_impl(libretro_vfs_file *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
-	return fflush(stream->fp);
+	if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
+		return fflush(stream->fp);
 #else
 	return 0;
 #endif
+
+	return 0;
 }
 
 const char *retro_vfs_file_get_path_impl(libretro_vfs_file *stream)
@@ -441,4 +393,66 @@ const char *retro_vfs_file_get_path_impl(libretro_vfs_file *stream)
 	if (!stream)
 		return NULL;
 	return stream->path;
+}
+
+
+int64_t retro_vfs_file_seek_internal(libretro_vfs_file *stream, int64_t offset, int whence)
+{
+	if (!stream)
+		goto error;
+
+#if  defined(PSP)
+	if (sceIoLseek(stream->fd, (SceOff)offset, whence) == -1)
+		goto error;
+#else
+
+#if defined(HAVE_BUFFERED_IO)
+	if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
+		return fseek(stream->fp, (long)offset, whence);
+#endif
+
+#ifdef HAVE_MMAP
+	/* Need to check stream->mapped because this function is
+	* called in filestream_open() */
+	if (stream->mapped && stream->hints & RFILE_HINT_MMAP)
+	{
+		/* fseek() returns error on under/overflow but allows cursor > EOF for
+		read-only file descriptors. */
+		switch (whence)
+		{
+		case SEEK_SET:
+			if (offset < 0)
+				goto error;
+
+			stream->mappos = offset;
+			break;
+
+		case SEEK_CUR:
+			if ((offset < 0 && stream->mappos + offset > stream->mappos) ||
+				(offset > 0 && stream->mappos + offset < stream->mappos))
+				goto error;
+
+			stream->mappos += offset;
+			break;
+
+		case SEEK_END:
+			if (stream->mapsize + offset < stream->mapsize)
+				goto error;
+
+			stream->mappos = stream->mapsize + offset;
+			break;
+		}
+		return stream->mappos;
+	}
+#endif
+
+	if (lseek(stream->fd, offset, whence) < 0)
+		goto error;
+
+#endif
+
+	return 0;
+
+error:
+	return -1;
 }
