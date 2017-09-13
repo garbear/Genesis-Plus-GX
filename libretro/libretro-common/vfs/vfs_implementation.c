@@ -7,7 +7,7 @@ The contents of this file would be part of the front end, not the core itself.
 #include <string.h>
 #include <errno.h>
 
-#include "vfs/vfs_implementation.h"
+#include <vfs/vfs_implementation.h>
 
 #if defined(_WIN32)
 #  ifdef _MSC_VER
