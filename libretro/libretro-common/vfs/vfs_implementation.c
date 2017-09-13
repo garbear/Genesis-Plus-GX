@@ -45,7 +45,6 @@ The contents of this file would be part of the front end, not the core itself.
 #include <fcntl.h>
 #endif
 
-#include <streams/file_stream.h>
 #include <memmap.h>
 #include <retro_miscellaneous.h>
 
