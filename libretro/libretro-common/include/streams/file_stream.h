@@ -39,17 +39,19 @@ RETRO_BEGIN_DECLS
 
 void filestream_vfs_init(retro_environment_t env_cb);
 
-typedef struct libretro_file RFILE;
-
-RFILE *filestream_open(const char *path, unsigned mode);
+RFILE *filestream_open(const char *path, retro_file_access access, bool binary_mode, bool create_new, bool replace_existing);
 
 int filestream_close(RFILE *stream);
 
 int filestream_error(RFILE *stream);
 
+int64_t filestream_get_size(RFILE *stream);
+
 int64_t filestream_tell(RFILE *stream);
 
-int64_t filestream_seek(RFILE *stream, int64_t offset, int whence);
+int64_t filestream_seek(RFILE *stream, int64_t offset);
+
+int64_t filestream_truncate(RFILE *stream, uint64_t size);
 
 int64_t filestream_read(RFILE *stream, void *s, uint64_t len);
 
@@ -60,8 +62,6 @@ int filestream_flush(RFILE *stream);
 const char *filestream_get_path(RFILE *stream);
 
 const char *filestream_get_ext(RFILE *stream);
-
-long long int filestream_get_size(RFILE *stream);
 
 int filestream_eof(RFILE *stream);
 

@@ -28,17 +28,31 @@
 
 RFILE* rfopen(const char *path, const char *mode)
 {
-   unsigned int retro_mode = RFILE_MODE_READ_TEXT;
+   unsigned int file_access = RFILE_ACCESS_READ_ONLY;
+   bool binary_mode = false;
+   bool create_new = false;
+   bool replace_existing = false;
+
+   if (strstr(mode, "b"))
+   {
+	   binary_mode = true;
+   }
+
    if (strstr(mode, "r"))
-      if (strstr(mode, "b"))
-         retro_mode = RFILE_MODE_READ;
+   {
+	   if (strstr(mode, "+"))
+	   {
+		   file_access = RFILE_ACCESS_READ_WRITE;
+	   }
+   }
+   else if (strstr(mode, "w") || strstr(mode, "+"))
+   {
+	   file_access = RFILE_ACCESS_READ_WRITE;
+	   create_new = true;
+	   replace_existing = true;
+   }
 
-   if (strstr(mode, "w"))
-      retro_mode = RFILE_MODE_WRITE;
-   if (strstr(mode, "+"))
-      retro_mode = RFILE_MODE_READ_WRITE;
-
-   return filestream_open(path, retro_mode);
+   return filestream_open(path, file_access, binary_mode, create_new, replace_existing);
 }
 
 int rfclose(RFILE* stream)

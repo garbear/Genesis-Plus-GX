@@ -28,7 +28,7 @@
 
 RETRO_BEGIN_DECLS
 
-typedef struct libretro_file RFILE;
+typedef struct RFILE RFILE;
 
 #define FILE RFILE
 

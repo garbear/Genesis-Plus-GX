@@ -7,7 +7,7 @@ The contents of this file would be part of the front end, not the core itself.
 #include <string.h>
 #include <errno.h>
 
-#include "libretro.h"
+#include "vfs/vfs_implementation.h"
 
 #if defined(_WIN32)
 #  ifdef _MSC_VER
@@ -49,7 +49,13 @@ The contents of this file would be part of the front end, not the core itself.
 #include <memmap.h>
 #include <retro_miscellaneous.h>
 
-typedef struct libretro_file_fallback
+enum libretro_file_hints
+{
+	RFILE_HINT_MMAP = 1 << 9,
+	RFILE_HINT_UNBUFFERED = 1 << 10
+};
+
+struct libretro_vfs_file
 {
 	unsigned hints;
 	char *path;
@@ -75,16 +81,16 @@ typedef struct libretro_file_fallback
 #endif
 	int fd;
 #endif
-} libretro_file_fallback;
+};
 
-libretro_file_fallback *fallback_filestream_open(const char *path, unsigned mode)
+libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 {
 	int            flags = 0;
 	int         mode_int = 0;
 #if defined(HAVE_BUFFERED_IO)
 	const char *mode_str = NULL;
 #endif
-	libretro_file_fallback        *stream = (libretro_file_fallback*)calloc(1, sizeof(*stream));
+	libretro_vfs_file *stream = (libretro_vfs_file*)calloc(1, sizeof(*stream));
 
 	if (!stream)
 		return NULL;
@@ -222,11 +228,11 @@ libretro_file_fallback *fallback_filestream_open(const char *path, unsigned mode
 	return stream;
 
 error:
-	filestream_close(stream);
+	retro_vfs_file_close_impl(stream);
 	return NULL;
 }
 
-int fallback_filestream_close(libretro_file_fallback *stream)
+int retro_vfs_file_close_impl(libretro_vfs_file *stream)
 {
 	if (!stream)
 		goto error;
@@ -259,7 +265,7 @@ error:
 	return -1;
 }
 
-int fallback_filestream_error(libretro_file_fallback *stream)
+int retro_vfs_file_error_impl(libretro_vfs_file *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return ferror(stream->fp);
@@ -269,7 +275,11 @@ int fallback_filestream_error(libretro_file_fallback *stream)
 #endif
 }
 
-int64_t fallback_filestream_tell(libretro_file_fallback *stream)
+int64_t retro_vfs_file_size_impl(libretro_vfs_file *stream)
+{
+}
+
+int64_t retro_vfs_file_tell_impl(libretro_vfs_file *stream)
 {
 	if (!stream)
 		goto error;
@@ -297,7 +307,7 @@ error:
 	return -1;
 }
 
-int64_t fallback_filestream_seek(libretro_file_fallback *stream, int64_t offset, int whence)
+int64_t retro_vfs_file_seek_impl(libretro_vfs_file *stream, int64_t offset)
 {
 	if (!stream)
 		goto error;
@@ -358,7 +368,11 @@ error:
 	return -1;
 }
 
-int64_t fallback_filestream_read(libretro_file_fallback *stream, void *s, uint64_t len)
+int64_t retro_vfs_file_truncate_impl(libretro_vfs_file *stream, uint64_t size)
+{
+}
+
+int64_t retro_vfs_file_read_impl(libretro_vfs_file *stream, void *s, uint64_t len)
 {
 	if (!stream || !s)
 		goto error;
@@ -391,7 +405,7 @@ error:
 	return -1;
 }
 
-int64_t fallback_filestream_write(libretro_file_fallback *stream, const void *s, uint64_t len)
+int64_t retro_vfs_file_write_impl(libretro_vfs_file *stream, const void *s, uint64_t len)
 {
 	if (!stream)
 		goto error;
@@ -413,7 +427,7 @@ error:
 	return -1;
 }
 
-int fallback_filestream_flush(libretro_file_fallback *stream)
+int retro_vfs_file_flush_impl(libretro_vfs_file *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return fflush(stream->fp);
@@ -422,7 +436,7 @@ int fallback_filestream_flush(libretro_file_fallback *stream)
 #endif
 }
 
-const char *fallback_filestream_get_path(libretro_file_fallback *stream)
+const char *retro_vfs_file_get_path_impl(libretro_vfs_file *stream)
 {
 	if (!stream)
 		return NULL;
