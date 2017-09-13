@@ -381,8 +381,6 @@ int retro_vfs_file_flush_impl(libretro_vfs_file *stream)
 #if defined(HAVE_BUFFERED_IO)
 	if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
 		return fflush(stream->fp);
-#else
-	return 0;
 #endif
 
 	return 0;
