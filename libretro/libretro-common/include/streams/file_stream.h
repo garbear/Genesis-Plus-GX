@@ -45,7 +45,7 @@ int filestream_close(RFILE *stream);
 
 int filestream_error(RFILE *stream);
 
-int64_t filestream_get_size(RFILE *stream);
+int64_t filestream_size(RFILE *stream);
 
 int64_t filestream_tell(RFILE *stream);
 

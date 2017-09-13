@@ -119,7 +119,7 @@ int filestream_error(RFILE *stream)
 	return retro_vfs_file_error_impl((libretro_vfs_file*)stream);
 }
 
-int64_t filestream_get_size(RFILE *stream)
+int64_t filestream_size(RFILE *stream)
 {
 	if (filestream_size_cb != NULL)
 	{
@@ -215,7 +215,7 @@ const char *filestream_get_ext(RFILE *stream)
 int filestream_eof(RFILE *stream)
 {
 	int64_t current_position = filestream_tell(stream);
-	int64_t end_position = filestream_get_size(stream);
+	int64_t end_position = filestream_size(stream);
 
 	if (current_position >= end_position)
 		return 1;
@@ -344,7 +344,7 @@ int filestream_read_file(const char *path, void **buf, uint64_t *len)
       goto error;
    }
 
-   int64_t size = filestream_get_size(file);
+   int64_t size = filestream_size(file);
    if (filestream_seek(file, size) != 0)
       goto error;
 
