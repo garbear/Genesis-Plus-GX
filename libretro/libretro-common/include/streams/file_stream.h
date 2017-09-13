@@ -35,9 +35,11 @@
 
 #include <stdarg.h>
 
+#define FILESTREAM_REQUIRED_VFS_VERSION 1
+
 RETRO_BEGIN_DECLS
 
-void filestream_vfs_init(retro_environment_t env_cb);
+void filestream_vfs_init(const retro_vfs_interface_info* vfs_iface_info);
 
 RFILE *filestream_open(const char *path, retro_file_access access);
 

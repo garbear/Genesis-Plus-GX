@@ -26,8 +26,6 @@
 #include <stdint.h>
 #include <libretro.h>
 
-//#define VFS_TARGET_IS_FRONTEND
-
 #ifdef VFS_TARGET_IS_FRONTEND
 #define libretro_vfs_file RFILE
 #else

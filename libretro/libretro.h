@@ -1065,7 +1065,7 @@ typedef struct retro_vfs_interface
 	retro_vfs_file_flush_t retro_vfs_file_flush;
 } retro_vfs_interface;
 
-struct retro_vfs_interface_info
+typedef struct retro_vfs_interface_info
 {
    /* Set by core, frontend won't use VFS unless it supports at least this version. */
    unsigned required_interface_version;
@@ -1073,7 +1073,7 @@ struct retro_vfs_interface_info
    /* Frontend writes interface pointer here. The frontend also sets the actual
     * version, must be at least requested_interface_version. */
    struct retro_vfs_interface *iface;
-};
+} retro_vfs_interface_info;
 
 #define RETRO_ENVIRONMENT_GET_VFS_INTERFACE 45
                                            /* struct retro_vfs_interface_info * --

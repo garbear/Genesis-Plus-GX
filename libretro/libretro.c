@@ -2026,6 +2026,12 @@ bool retro_load_game(const struct retro_game_info *info)
       save_dir = g_rom_dir;
    }
 
+   retro_vfs_interface_info vfs_iface_info;
+   if (!environ_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_iface_info))
+   {
+	   filestream_vfs_init(&vfs_iface_info);
+   }
+
    snprintf(GG_ROM, sizeof(GG_ROM), "%s%cggenie.bin", dir, slash);
    snprintf(AR_ROM, sizeof(AR_ROM), "%s%careplay.bin", dir, slash);
    snprintf(SK_ROM, sizeof(SK_ROM), "%s%csk.bin", dir, slash);

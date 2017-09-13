@@ -43,7 +43,7 @@ retro_vfs_file_flush_t filestream_flush_cb = NULL;
 
 /* VFS Initialization */
 
-void filestream_vfs_init(retro_environment_t env_cb)
+void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 {
 	filestream_get_path_cb = NULL;
 	filestream_open_cb = NULL;
@@ -56,18 +56,8 @@ void filestream_vfs_init(retro_environment_t env_cb)
 	filestream_write_cb = NULL;
 	filestream_flush_cb = NULL;
 
-	if (env_cb == NULL)
-	{
-		return;
-	}
-
-	struct retro_vfs_interface_info vfs_info;
-	vfs_info.required_interface_version = 1;
-	vfs_info.iface = NULL;
-	env_cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_info);
-
-	struct retro_vfs_interface* vfs_iface = vfs_info.iface;
-	if (vfs_iface == NULL)
+	const retro_vfs_interface* vfs_iface = vfs_info->iface;
+	if (vfs_info->required_interface_version < FILESTREAM_REQUIRED_VFS_VERSION || vfs_iface == NULL)
 	{
 		return;
 	}
