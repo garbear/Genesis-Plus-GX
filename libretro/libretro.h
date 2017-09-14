@@ -1051,6 +1051,9 @@ typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(RFILE *stream, const vo
 /* Flush pending writes to file, if using buffered IO */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(RFILE *stream);
 
+/* Delete the specified file. Returns true if the file was deleted. */
+typedef bool (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
+
 typedef struct retro_vfs_interface
 {
 	retro_vfs_file_get_path_t retro_vfs_file_get_path;
@@ -1063,6 +1066,7 @@ typedef struct retro_vfs_interface
 	retro_vfs_file_read_t retro_vfs_file_read;
 	retro_vfs_file_write_t retro_vfs_file_write;
 	retro_vfs_file_flush_t retro_vfs_file_flush;
+	retro_vfs_file_delete_t retro_vfs_file_delete;
 } retro_vfs_interface;
 
 typedef struct retro_vfs_interface_info

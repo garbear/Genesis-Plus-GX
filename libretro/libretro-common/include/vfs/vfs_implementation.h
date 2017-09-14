@@ -50,6 +50,8 @@ int64_t retro_vfs_file_write_impl(libretro_vfs_file *stream, const void *s, uint
 
 int retro_vfs_file_flush_impl(libretro_vfs_file *stream);
 
+bool retro_vfs_file_delete_impl(const char *path);
+
 const char *retro_vfs_file_get_path_impl(libretro_vfs_file *stream);
 
 #endif

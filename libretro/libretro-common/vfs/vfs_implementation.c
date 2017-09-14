@@ -385,13 +385,18 @@ int retro_vfs_file_flush_impl(libretro_vfs_file *stream)
 	return 0;
 }
 
+/* No idea how it is supposed to work on PSP/PS3 etc. Should not be affected by buffered IO */
+bool retro_vfs_file_delete_impl(const char *path)
+{
+	return remove(path) == 0;
+}
+
 const char *retro_vfs_file_get_path_impl(libretro_vfs_file *stream)
 {
 	if (!stream)
 		return NULL;
 	return stream->path;
 }
-
 
 int64_t retro_vfs_file_seek_internal(libretro_vfs_file *stream, int64_t offset, int whence)
 {

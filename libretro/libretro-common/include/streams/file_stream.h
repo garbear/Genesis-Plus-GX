@@ -59,6 +59,8 @@ int64_t filestream_write(RFILE *stream, const void *s, uint64_t len);
 
 int filestream_flush(RFILE *stream);
 
+bool filestream_delete(const char *path);
+
 const char *filestream_get_path(RFILE *stream);
 
 const char *filestream_get_ext(RFILE *stream);

@@ -40,6 +40,7 @@ retro_vfs_file_seek_t filestream_seek_cb = NULL;
 retro_vfs_file_read_t filestream_read_cb = NULL;
 retro_vfs_file_write_t filestream_write_cb = NULL;
 retro_vfs_file_flush_t filestream_flush_cb = NULL;
+retro_vfs_file_delete_t filestream_delete_cb = NULL;
 
 /* VFS Initialization */
 
@@ -55,6 +56,7 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 	filestream_read_cb = NULL;
 	filestream_write_cb = NULL;
 	filestream_flush_cb = NULL;
+	filestream_delete_cb = NULL;
 
 	const retro_vfs_interface* vfs_iface = vfs_info->iface;
 	if (vfs_info->required_interface_version < FILESTREAM_REQUIRED_VFS_VERSION || vfs_iface == NULL)
@@ -72,6 +74,7 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 	filestream_read_cb = vfs_iface->retro_vfs_file_read;
 	filestream_write_cb = vfs_iface->retro_vfs_file_write;
 	filestream_flush_cb = vfs_iface->retro_vfs_file_flush;
+	filestream_delete_cb = vfs_iface->retro_vfs_file_delete;
 }
 
 /* Callback wrappers */
@@ -165,6 +168,16 @@ int filestream_flush(RFILE *stream)
 	}
 
 	return retro_vfs_file_flush_impl((libretro_vfs_file*)stream);
+}
+
+bool filestream_delete(const char *path)
+{
+	if (filestream_delete_cb != NULL)
+	{
+		return filestream_delete_cb(path);
+	}
+
+	return retro_vfs_file_delete_impl(path);
 }
 
 const char *filestream_get_path(RFILE *stream)
