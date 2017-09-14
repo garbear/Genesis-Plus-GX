@@ -52,7 +52,7 @@ ifneq ($(STATIC_LINKING), 1)
 SOURCES_C += \
 				 $(LIBRETRO_COMM_DIR)/streams/file_stream.c \
 				 $(LIBRETRO_COMM_DIR)/streams/file_stream_transforms.c \
-				 $(LIBRETRO_COMM_DIR)/streams/file_stream_fallbacks.c
+				 $(LIBRETRO_COMM_DIR)/vfs/vfs_implementation.c
 
 SOURCES_C += $(CHDLIBDIR)/deps/zlib/adler32.c \
 				 $(CHDLIBDIR)/deps/zlib/inffast.c \
