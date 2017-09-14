@@ -26,6 +26,11 @@
 #include <stdint.h>
 #include <libretro.h>
 
+/* Replace the following symbol with something appropriate
+ * to signify the file is being compiled for a front end instead of a core.
+ * This allows the same code to act as reference implementation
+ * for VFS and as fallbacks for when the front end does not provide VFS functionality.
+ */
 #ifdef VFS_TARGET_IS_FRONTEND
 #define libretro_vfs_file RFILE
 #else
