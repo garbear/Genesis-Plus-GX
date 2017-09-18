@@ -98,13 +98,18 @@ RFILE *filestream_open(const char *path, uint64_t flags)
 
 int filestream_close(RFILE *stream)
 {
+	int output;
 	struct retro_vfs_file_handle* fp = stream->hfile;
-	free(stream);
 
 	if (filestream_close_cb != NULL)
-		return filestream_close_cb(fp);
+		output = filestream_close_cb(fp);
 	else
-		return retro_vfs_file_close_impl((libretro_vfs_implementation_file*)fp);
+		output = retro_vfs_file_close_impl((libretro_vfs_implementation_file*)fp);
+
+	if (output == 0)
+		free(stream);
+
+	return output;
 }
 
 int filestream_error(RFILE *stream)
@@ -192,7 +197,7 @@ int64_t filestream_write(RFILE *stream, const void *s, uint64_t len)
 
 int filestream_flush(RFILE *stream)
 {
-	int64_t output;
+	int output;
 
 	if (filestream_flush_cb != NULL)
 		output = filestream_flush_cb(stream->hfile);
@@ -250,6 +255,7 @@ int filestream_eof(RFILE *stream)
 void filestream_rewind(RFILE *stream)
 {
 	filestream_seek(stream, 0);
+	stream->error_flag = false;
 }
 
 char *filestream_getline(RFILE *stream)

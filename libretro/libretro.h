@@ -1014,12 +1014,13 @@ struct retro_vfs_file_handle;
 
 /* File open flags */
 /* Introduced in VFS API v1 */
-#define RETRO_VFS_FILE_ACCESS_READ       (1 << 0)
-#define RETRO_VFS_FILE_ACCESS_WRITE      (1 << 1)
-#define RETRO_VFS_FILE_ACCESS_READ_WRITE (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE)
-#define RETRO_VFS_FILE_ACCESS_TEXT_MODE  (1 << 2)
+#define RETRO_VFS_FILE_ACCESS_READ       (1 << 0) /* Read only mode */
+#define RETRO_VFS_FILE_ACCESS_WRITE      (1 << 1) /* Write only mode, overwrite if existing unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified */
+#define RETRO_VFS_FILE_ACCESS_READ_WRITE (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE) /* Read-write mode, overwrite if existing unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified*/
+#define RETRO_VFS_FILE_ACCESS_UPDATE     (1 << 2) /* Prevents discarding content of files opened for writing */     
+#define RETRO_VFS_FILE_ACCESS_TEXT_MODE  (1 << 3) /* Hints the front end to use text mode when opening file */
 
-/* Get path from opaque handle */
+/* Get path from opaque handle. Returns the exact same path passed to file_open when getting the handle */
 /* Introduced in VFS API v1 */
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs_file_handle *stream);
 
@@ -1028,7 +1029,7 @@ typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs
  /* Introduced in VFS API v1 */
 typedef struct retro_vfs_file_handle *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
 
-/* Close the file and release its resources. Must be called if open_file returns non-NULL. */
+/* Close the file and release its resources. Must be called if open_file returns non-NULL. Returns 0 on succes, -1 on failure */
 /* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(struct retro_vfs_file_handle *stream);
 
@@ -1081,7 +1082,7 @@ typedef struct retro_vfs_interface_info
    unsigned required_interface_version;
 
    /* Frontend writes interface pointer here. The frontend also sets the actual
-    * version, must be at least requested_interface_version.
+    * version, must be at least required_interface_version.
 	* Introduced in VFS API v1 */
    struct retro_vfs_interface *iface;
 } retro_vfs_interface_info;
