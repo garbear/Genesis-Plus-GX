@@ -76,7 +76,7 @@ enum libretro_file_hints
 
 struct libretro_vfs_file
 {
-	unsigned hints;
+	uint64_t hints;
 	char *path;
 	long long int size;
 #if defined(PSP)
@@ -104,7 +104,7 @@ struct libretro_vfs_file
 
 int64_t retro_vfs_file_seek_internal(libretro_vfs_file *stream, int64_t offset, int whence);
 
-libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
+libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
 {
 	int            flags = 0;
 	int         mode_int = 0;
@@ -130,7 +130,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 
 	switch (mode & HINTS_ACCESS_MASK)
 	{
-	case RFILE_MODE_READ_TEXT:
+	case (VFS_FILE_ACCESS_READ | VFS_FILE_ACCESS_TEXT_MODE):
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_RDONLY;
@@ -143,7 +143,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 		flags = O_RDONLY;
 #endif
 		break;
-	case RFILE_MODE_READ:
+	case VFS_FILE_ACCESS_READ:
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_RDONLY;
@@ -156,7 +156,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 		flags = O_RDONLY;
 #endif
 		break;
-	case RFILE_MODE_WRITE:
+	case VFS_FILE_ACCESS_WRITE:
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_CREAT | PSP_O_WRONLY | PSP_O_TRUNC;
@@ -174,7 +174,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned mode)
 		}
 #endif
 		break;
-	case RFILE_MODE_READ_WRITE:
+	case VFS_FILE_ACCESS_READ_WRITE:
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_RDWR;
