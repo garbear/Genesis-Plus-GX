@@ -1032,15 +1032,11 @@ typedef struct retro_vfs_file_handle *(RETRO_CALLCONV *retro_vfs_file_open_t)(co
 /* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(struct retro_vfs_file_handle *stream);
 
-/* Same as ferror() */
-/* Introduced in VFS API v1 */
-typedef int (RETRO_CALLCONV *retro_vfs_file_error_t)(struct retro_vfs_file_handle *stream);
-
 /* Return the size of the file in bytes, or -1 for error. */
 /* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_size_t)(struct retro_vfs_file_handle *stream);
 
-/* Get the current read / write position for the file.Returns - 1 for error. */
+/* Get the current read / write position for the file. Returns - 1 for error. */
 /* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(struct retro_vfs_file_handle *stream);
 
@@ -1056,7 +1052,7 @@ typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(struct retro_vfs_file_ha
 /* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_handle *stream, const void *s, uint64_t len);
 
-/* Flush pending writes to file, if using buffered IO */
+/* Flush pending writes to file, if using buffered IO. Returns 0 on sucess, or -1 for error. */
 /* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
@@ -1069,7 +1065,6 @@ struct retro_vfs_interface
 	retro_vfs_file_get_path_t file_get_path;
 	retro_vfs_file_open_t file_open;
 	retro_vfs_file_close_t file_close;
-	retro_vfs_file_error_t file_error;
 	retro_vfs_file_size_t file_size;
 	retro_vfs_file_tell_t file_tell;
 	retro_vfs_file_seek_t file_seek;

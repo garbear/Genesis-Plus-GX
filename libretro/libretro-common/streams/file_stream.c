@@ -28,12 +28,13 @@
 #include <streams/file_stream.h>
 #include <vfs/vfs_implementation.h>
 
+static const int64_t vfs_eror_return_value = -1;
+
 /* Callbacks */
 
 retro_vfs_file_get_path_t filestream_get_path_cb = NULL;
 retro_vfs_file_open_t filestream_open_cb = NULL;
 retro_vfs_file_close_t filestream_close_cb = NULL;
-retro_vfs_file_error_t filestream_error_cb = NULL;
 retro_vfs_file_size_t filestream_size_cb = NULL;
 retro_vfs_file_tell_t filestream_tell_cb = NULL;
 retro_vfs_file_seek_t filestream_seek_cb = NULL;
@@ -49,7 +50,6 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 	filestream_get_path_cb = NULL;
 	filestream_open_cb = NULL;
 	filestream_close_cb = NULL;
-	filestream_error_cb = NULL;
 	filestream_tell_cb = NULL;
 	filestream_size_cb = NULL;
 	filestream_seek_cb = NULL;
@@ -67,7 +67,6 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 	filestream_get_path_cb = vfs_iface->file_get_path;
 	filestream_open_cb = vfs_iface->file_open;
 	filestream_close_cb = vfs_iface->file_close;
-	filestream_error_cb = vfs_iface->file_error;
 	filestream_size_cb = vfs_iface->file_size;
 	filestream_tell_cb = vfs_iface->file_tell;
 	filestream_seek_cb = vfs_iface->file_seek;
@@ -81,93 +80,129 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 
 RFILE *filestream_open(const char *path, uint64_t flags)
 {
-	if (filestream_open_cb != NULL)
-	{
-		return filestream_open_cb(path, flags);
-	}
+	struct retro_vfs_file_handle* fp;
 
-	return (RFILE*)retro_vfs_file_open_impl(path, flags);
+	if (filestream_open_cb != NULL)
+		fp = filestream_open_cb(path, flags);
+	else
+		fp = (struct retro_vfs_file_handle*)retro_vfs_file_open_impl(path, flags);
+
+	if (fp == NULL)
+		return NULL;
+
+	RFILE* output = malloc(sizeof(RFILE));
+	output->error_flag = false;
+	output->hfile = fp;
+	return output;
 }
 
 int filestream_close(RFILE *stream)
 {
-	if (filestream_close_cb != NULL)
-	{
-		return filestream_close_cb(stream);
-	}
+	struct retro_vfs_file_handle* fp = stream->hfile;
+	free(stream);
 
-	return retro_vfs_file_close_impl((libretro_vfs_file*)stream);
+	if (filestream_close_cb != NULL)
+		return filestream_close_cb(fp);
+	else
+		return retro_vfs_file_close_impl((libretro_vfs_implementation_file*)fp);
 }
 
 int filestream_error(RFILE *stream)
 {
-	if (filestream_error_cb != NULL)
-	{
-		return filestream_error_cb(stream);
-	}
+	if (stream->error_flag)
+		return 1;
 
-	return retro_vfs_file_error_impl((libretro_vfs_file*)stream);
+	return 0;
 }
 
 int64_t filestream_size(RFILE *stream)
 {
+	int64_t output;
+
 	if (filestream_size_cb != NULL)
-	{
-		return filestream_size_cb(stream);
-	}
+		output = filestream_size_cb(stream->hfile);
+	else
+		output = retro_vfs_file_size_impl((libretro_vfs_implementation_file*)stream->hfile);
 
-	return retro_vfs_file_size_impl((libretro_vfs_file*)stream);
+	if (output == vfs_eror_return_value)
+		stream->error_flag = true;
+
+	return output;
 }
-
 
 int64_t filestream_tell(RFILE *stream)
 {
-	if (filestream_tell_cb != NULL)
-	{
-		return filestream_tell_cb(stream);
-	}
+	int64_t output;
 
-	return retro_vfs_file_tell_impl((libretro_vfs_file*)stream);
+	if (filestream_tell_cb != NULL)
+		output = filestream_tell_cb(stream->hfile);
+	else
+		output = retro_vfs_file_tell_impl((libretro_vfs_implementation_file*)stream->hfile);
+
+	if (output == vfs_eror_return_value)
+		stream->error_flag = true;
+
+	return output;
 }
 
 int64_t filestream_seek(RFILE *stream, int64_t offset)
 {
-	if (filestream_seek_cb != NULL)
-	{
-		return filestream_seek_cb(stream, offset);
-	}
+	int64_t output;
 
-	return retro_vfs_file_seek_impl((libretro_vfs_file*)stream, offset);
+	if (filestream_seek_cb != NULL)
+		output = filestream_seek_cb(stream->hfile, offset);
+	else
+		output = retro_vfs_file_seek_impl((libretro_vfs_implementation_file*)stream->hfile, offset);
+
+	if (output == vfs_eror_return_value)
+		stream->error_flag = true;
+
+	return output;
 }
 
 int64_t filestream_read(RFILE *stream, void *s, uint64_t len)
 {
-	if (filestream_read_cb != NULL)
-	{
-		return filestream_read_cb(stream, s, len);
-	}
+	int64_t output;
 
-	return retro_vfs_file_read_impl((libretro_vfs_file*)stream, s, len);
+	if (filestream_read_cb != NULL)
+		output = filestream_read_cb(stream->hfile, s, len);
+	else
+		output = retro_vfs_file_read_impl((libretro_vfs_implementation_file*)stream->hfile, s, len);
+
+	if (output == vfs_eror_return_value)
+		stream->error_flag = true;
+
+	return output;
 }
 
 int64_t filestream_write(RFILE *stream, const void *s, uint64_t len)
 {
-	if (filestream_write_cb != NULL)
-	{
-		return filestream_write_cb(stream, s, len);
-	}
+	int64_t output;
 
-	return retro_vfs_file_write_impl((libretro_vfs_file*)stream, s, len);
+	if (filestream_write_cb != NULL)
+		output = filestream_write_cb(stream->hfile, s, len);
+	else
+		output = retro_vfs_file_write_impl((libretro_vfs_implementation_file*)stream->hfile, s, len);
+
+	if (output == vfs_eror_return_value)
+		stream->error_flag = true;
+
+	return output;
 }
 
 int filestream_flush(RFILE *stream)
 {
-	if (filestream_flush_cb != NULL)
-	{
-		return filestream_flush_cb(stream);
-	}
+	int64_t output;
 
-	return retro_vfs_file_flush_impl((libretro_vfs_file*)stream);
+	if (filestream_flush_cb != NULL)
+		output = filestream_flush_cb(stream->hfile);
+	else
+		output = retro_vfs_file_flush_impl((libretro_vfs_implementation_file*)stream->hfile);
+
+	if (output == vfs_eror_return_value)
+		stream->error_flag = true;
+
+	return output;
 }
 
 bool filestream_delete(const char *path)
@@ -184,10 +219,10 @@ const char *filestream_get_path(RFILE *stream)
 {
 	if (filestream_get_path_cb != NULL)
 	{
-		return filestream_get_path_cb(stream);
+		return filestream_get_path_cb(stream->hfile);
 	}
 
-	return retro_vfs_file_get_path_impl((libretro_vfs_file*)stream);
+	return retro_vfs_file_get_path_impl((libretro_vfs_implementation_file*)stream->hfile);
 }
 
 /* Wrapper-based Implementations */
@@ -267,7 +302,7 @@ int filestream_getc(RFILE *stream)
    char c = 0;
    (void)c;
 
-   if (!stream)
+   if (!stream->hfile)
       return 0;
 
     if(filestream_read(stream, &c, 1) == 1)

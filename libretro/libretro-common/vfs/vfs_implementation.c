@@ -74,7 +74,7 @@ enum libretro_file_hints
 	RFILE_HINT_UNBUFFERED = 1 << 9
 };
 
-struct libretro_vfs_file
+struct libretro_vfs_implementation_file
 {
 	uint64_t hints;
 	char *path;
@@ -102,16 +102,16 @@ struct libretro_vfs_file
 #endif
 };
 
-int64_t retro_vfs_file_seek_internal(libretro_vfs_file *stream, int64_t offset, int whence);
+int64_t retro_vfs_file_seek_internal(libretro_vfs_implementation_file *stream, int64_t offset, int whence);
 
-libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
+libretro_vfs_implementation_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
 {
 	int            flags = 0;
 	int         mode_int = 0;
 #if defined(HAVE_BUFFERED_IO)
 	const char *mode_str = NULL;
 #endif
-	libretro_vfs_file *stream = (libretro_vfs_file*)calloc(1, sizeof(*stream));
+	libretro_vfs_implementation_file *stream = (libretro_vfs_implementation_file*)calloc(1, sizeof(*stream));
 
 	if (!stream)
 		return NULL;
@@ -253,7 +253,7 @@ error:
 	return NULL;
 }
 
-int retro_vfs_file_close_impl(libretro_vfs_file *stream)
+int retro_vfs_file_close_impl(libretro_vfs_implementation_file *stream)
 {
 	if (!stream)
 		goto error;
@@ -286,7 +286,7 @@ error:
 	return -1;
 }
 
-int retro_vfs_file_error_impl(libretro_vfs_file *stream)
+int retro_vfs_file_error_impl(libretro_vfs_implementation_file *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	return ferror(stream->fp);
@@ -296,7 +296,7 @@ int retro_vfs_file_error_impl(libretro_vfs_file *stream)
 #endif
 }
 
-int64_t retro_vfs_file_size_impl(libretro_vfs_file *stream)
+int64_t retro_vfs_file_size_impl(libretro_vfs_implementation_file *stream)
 {
 	int64_t ret = retro_vfs_file_seek_internal(stream, 0, SEEK_END);
 	if (ret == -1)
@@ -305,7 +305,7 @@ int64_t retro_vfs_file_size_impl(libretro_vfs_file *stream)
 	return retro_vfs_file_tell_impl(stream);
 }
 
-int64_t retro_vfs_file_tell_impl(libretro_vfs_file *stream)
+int64_t retro_vfs_file_tell_impl(libretro_vfs_implementation_file *stream)
 {
 	if (!stream)
 		goto error;
@@ -333,12 +333,12 @@ error:
 	return -1;
 }
 
-int64_t retro_vfs_file_seek_impl(libretro_vfs_file *stream, int64_t offset)
+int64_t retro_vfs_file_seek_impl(libretro_vfs_implementation_file *stream, int64_t offset)
 {
 	return retro_vfs_file_seek_internal(stream, offset, SEEK_SET);
 }
 
-int64_t retro_vfs_file_read_impl(libretro_vfs_file *stream, void *s, uint64_t len)
+int64_t retro_vfs_file_read_impl(libretro_vfs_implementation_file *stream, void *s, uint64_t len)
 {
 	if (!stream || !s)
 		goto error;
@@ -371,7 +371,7 @@ error:
 	return -1;
 }
 
-int64_t retro_vfs_file_write_impl(libretro_vfs_file *stream, const void *s, uint64_t len)
+int64_t retro_vfs_file_write_impl(libretro_vfs_implementation_file *stream, const void *s, uint64_t len)
 {
 	if (!stream)
 		goto error;
@@ -393,7 +393,7 @@ error:
 	return -1;
 }
 
-int retro_vfs_file_flush_impl(libretro_vfs_file *stream)
+int retro_vfs_file_flush_impl(libretro_vfs_implementation_file *stream)
 {
 #if defined(HAVE_BUFFERED_IO)
 	if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
@@ -409,14 +409,14 @@ bool retro_vfs_file_delete_impl(const char *path)
 	return remove(path) == 0;
 }
 
-const char *retro_vfs_file_get_path_impl(libretro_vfs_file *stream)
+const char *retro_vfs_file_get_path_impl(libretro_vfs_implementation_file *stream)
 {
 	if (!stream)
 		return NULL;
 	return stream->path;
 }
 
-int64_t retro_vfs_file_seek_internal(libretro_vfs_file *stream, int64_t offset, int whence)
+int64_t retro_vfs_file_seek_internal(libretro_vfs_implementation_file *stream, int64_t offset, int whence)
 {
 	if (!stream)
 		goto error;
