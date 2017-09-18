@@ -1014,11 +1014,11 @@ struct retro_vfs_file_handle;
 
 /* File open flags */
 /* Introduced in VFS API v1 */
-#define RETRO_VFS_FILE_ACCESS_READ       (1 << 0) /* Read only mode */
-#define RETRO_VFS_FILE_ACCESS_WRITE      (1 << 1) /* Write only mode, overwrite if existing unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified */
-#define RETRO_VFS_FILE_ACCESS_READ_WRITE (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE) /* Read-write mode, overwrite if existing unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified*/
-#define RETRO_VFS_FILE_ACCESS_UPDATE     (1 << 2) /* Prevents discarding content of files opened for writing */     
-#define RETRO_VFS_FILE_ACCESS_TEXT_MODE  (1 << 3) /* Hints the front end to use text mode when opening file */
+#define RETRO_VFS_FILE_ACCESS_READ            (1 << 0) /* Read only mode */
+#define RETRO_VFS_FILE_ACCESS_WRITE           (1 << 1) /* Write only mode, discard contents and overwrites existing file unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified */
+#define RETRO_VFS_FILE_ACCESS_READ_WRITE      (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE) /* Read-write mode, discard contents and overwrites existing file unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified*/
+#define RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING (1 << 2) /* Prevents discarding content of existing files opened for writing */
+#define RETRO_VFS_FILE_ACCESS_TEXT_MODE       (1 << 3) /* Hints the front end to use text mode when opening file */
 
 /* Get path from opaque handle. Returns the exact same path passed to file_open when getting the handle */
 /* Introduced in VFS API v1 */
