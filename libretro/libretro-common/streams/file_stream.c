@@ -326,7 +326,7 @@ int filestream_read_file(const char *path, void **buf, uint64_t *len)
    int64_t ret              = 0;
    int64_t content_buf_size = 0;
    void *content_buf        = NULL;
-   RFILE *file              = filestream_open(path, VFS_FILE_ACCESS_READ);
+   RFILE *file              = filestream_open(path, RETRO_VFS_FILE_ACCESS_READ);
 
    if (!file)
    {
@@ -393,7 +393,7 @@ error:
 bool filestream_write_file(const char *path, const void *data, uint64_t size)
 {
    int64_t ret   = 0;
-   RFILE *file   = filestream_open(path, VFS_FILE_ACCESS_WRITE);
+   RFILE *file   = filestream_open(path, RETRO_VFS_FILE_ACCESS_WRITE);
    if (!file)
       return false;
 

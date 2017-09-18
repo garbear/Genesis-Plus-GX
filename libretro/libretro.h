@@ -1012,10 +1012,10 @@ struct retro_hw_render_context_negotiation_interface
 struct retro_vfs_file_handle;
 
 /* File open flags */
-#define VFS_FILE_ACCESS_READ       (1 << 0)
-#define VFS_FILE_ACCESS_WRITE      (1 << 1)
-#define VFS_FILE_ACCESS_READ_WRITE (VFS_FILE_ACCESS_READ | VFS_FILE_ACCESS_WRITE)
-#define VFS_FILE_ACCESS_TEXT_MODE  (1 << 2)
+#define RETRO_VFS_FILE_ACCESS_READ       (1 << 0)
+#define RETRO_VFS_FILE_ACCESS_WRITE      (1 << 1)
+#define RETRO_VFS_FILE_ACCESS_READ_WRITE (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE)
+#define RETRO_VFS_FILE_ACCESS_TEXT_MODE  (1 << 2)
 
 /* Get path from opaque handle */
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs_file_handle *stream);

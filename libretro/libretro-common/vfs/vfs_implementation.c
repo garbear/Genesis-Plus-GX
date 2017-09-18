@@ -130,7 +130,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
 
 	switch (mode & HINTS_ACCESS_MASK)
 	{
-	case (VFS_FILE_ACCESS_READ | VFS_FILE_ACCESS_TEXT_MODE):
+	case (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_TEXT_MODE):
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_RDONLY;
@@ -143,7 +143,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
 		flags = O_RDONLY;
 #endif
 		break;
-	case VFS_FILE_ACCESS_READ:
+	case RETRO_VFS_FILE_ACCESS_READ:
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_RDONLY;
@@ -156,7 +156,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
 		flags = O_RDONLY;
 #endif
 		break;
-	case VFS_FILE_ACCESS_WRITE:
+	case RETRO_VFS_FILE_ACCESS_WRITE:
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_CREAT | PSP_O_WRONLY | PSP_O_TRUNC;
@@ -174,7 +174,7 @@ libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t mode)
 		}
 #endif
 		break;
-	case VFS_FILE_ACCESS_READ_WRITE:
+	case RETRO_VFS_FILE_ACCESS_READ_WRITE:
 #if  defined(PSP)
 		mode_int = 0666;
 		flags = PSP_O_RDWR;
