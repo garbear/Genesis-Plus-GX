@@ -1011,21 +1011,18 @@ struct retro_hw_render_context_negotiation_interface
 /* Opaque file handle */
 typedef struct RFILE RFILE;
 
-/* File open modes */
-typedef enum retro_file_access
-{
-	RFILE_MODE_READ_TEXT,
-	RFILE_MODE_READ,
-	RFILE_MODE_WRITE,
-	RFILE_MODE_READ_WRITE
-} retro_file_access;
+/* File open flags */
+#define VFS_FILE_ACCESS_READ       (1 << 0)
+#define VFS_FILE_ACCESS_WRITE      (1 << 1)
+#define VFS_FILE_ACCESS_READ_WRITE (VFS_FILE_ACCESS_READ | VFS_FILE_ACCESS_WRITE)
+#define VFS_FILE_ACCESS_TEXT_MODE  (1 << 2)
 
 /* Get path from opaque handle */
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(RFILE *stream);
 
 /* Open a file for reading or writing. If path points to a directory, this will
  * fail. Returns the opaque file handle, or NULL for error. */
-typedef RFILE *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, retro_file_access access);
+typedef RFILE *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
 
 /* Close the file and release its resources. Must be called if open_file returns non-NULL. */
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(RFILE *stream);

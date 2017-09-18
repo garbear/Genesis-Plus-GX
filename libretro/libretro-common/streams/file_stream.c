@@ -79,14 +79,14 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 
 /* Callback wrappers */
 
-RFILE *filestream_open(const char *path, retro_file_access access)
+RFILE *filestream_open(const char *path, uint64_t flags)
 {
 	if (filestream_open_cb != NULL)
 	{
-		return filestream_open_cb(path, access);
+		return filestream_open_cb(path, flags);
 	}
 
-	return (RFILE*)retro_vfs_file_open_impl(path, access);
+	return (RFILE*)retro_vfs_file_open_impl(path, flags);
 }
 
 int filestream_close(RFILE *stream)
@@ -326,7 +326,7 @@ int filestream_read_file(const char *path, void **buf, uint64_t *len)
    int64_t ret              = 0;
    int64_t content_buf_size = 0;
    void *content_buf        = NULL;
-   RFILE *file              = filestream_open(path, RFILE_MODE_READ);
+   RFILE *file              = filestream_open(path, VFS_FILE_ACCESS_READ);
 
    if (!file)
    {
@@ -393,7 +393,7 @@ error:
 bool filestream_write_file(const char *path, const void *data, uint64_t size)
 {
    int64_t ret   = 0;
-   RFILE *file   = filestream_open(path, RFILE_MODE_WRITE);
+   RFILE *file   = filestream_open(path, VFS_FILE_ACCESS_WRITE);
    if (!file)
       return false;
 

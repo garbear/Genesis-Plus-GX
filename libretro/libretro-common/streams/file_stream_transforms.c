@@ -29,15 +29,15 @@
 
 RFILE* rfopen(const char *path, const char *mode)
 {
-   unsigned int retro_mode = RFILE_MODE_READ_TEXT;
-   if (strstr(mode, "r"))
-      if (strstr(mode, "b"))
-         retro_mode = RFILE_MODE_READ;
+   unsigned int retro_mode = VFS_FILE_ACCESS_READ;
 
    if (strstr(mode, "w"))
-      retro_mode = RFILE_MODE_WRITE;
+      retro_mode = VFS_FILE_ACCESS_WRITE;
    if (strstr(mode, "+"))
-      retro_mode = RFILE_MODE_READ_WRITE;
+      retro_mode = VFS_FILE_ACCESS_READ_WRITE;
+
+   if (!strstr(mode, "+"))
+      retro_mode = retro_mode | VFS_FILE_ACCESS_TEXT_MODE;
 
    return filestream_open(path, retro_mode);
 }

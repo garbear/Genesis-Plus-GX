@@ -37,7 +37,7 @@
 typedef struct libretro_vfs_file libretro_vfs_file;
 #endif
 
-libretro_vfs_file *retro_vfs_file_open_impl(const char *path, unsigned access);
+libretro_vfs_file *retro_vfs_file_open_impl(const char *path, uint64_t flags);
 
 int retro_vfs_file_close_impl(libretro_vfs_file *stream);
 

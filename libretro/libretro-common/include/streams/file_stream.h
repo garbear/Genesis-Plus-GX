@@ -41,7 +41,7 @@ RETRO_BEGIN_DECLS
 
 void filestream_vfs_init(const retro_vfs_interface_info* vfs_iface_info);
 
-RFILE *filestream_open(const char *path, retro_file_access access);
+RFILE *filestream_open(const char *path, uint64_t flags);
 
 int filestream_close(RFILE *stream);
 
