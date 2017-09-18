@@ -1009,7 +1009,7 @@ struct retro_hw_render_context_negotiation_interface
 /* VFS functionality */
 
 /* Opaque file handle */
-typedef struct RFILE RFILE;
+struct retro_vfs_file_handle;
 
 /* File open flags */
 #define VFS_FILE_ACCESS_READ       (1 << 0)
@@ -1018,35 +1018,35 @@ typedef struct RFILE RFILE;
 #define VFS_FILE_ACCESS_TEXT_MODE  (1 << 2)
 
 /* Get path from opaque handle */
-typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(RFILE *stream);
+typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs_file_handle *stream);
 
 /* Open a file for reading or writing. If path points to a directory, this will
  * fail. Returns the opaque file handle, or NULL for error. */
-typedef RFILE *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
+typedef struct retro_vfs_file_handle *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
 
 /* Close the file and release its resources. Must be called if open_file returns non-NULL. */
-typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(RFILE *stream);
+typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(struct retro_vfs_file_handle *stream);
 
 /* Same as ferror() */
-typedef int (RETRO_CALLCONV *retro_vfs_file_error_t)(RFILE *stream);
+typedef int (RETRO_CALLCONV *retro_vfs_file_error_t)(struct retro_vfs_file_handle *stream);
 
 /* Return the size of the file in bytes, or -1 for error. */
-typedef int64_t (RETRO_CALLCONV *retro_vfs_file_size_t)(RFILE *stream);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_size_t)(struct retro_vfs_file_handle *stream);
 
 /*Get the current read / write position for the file.Returns - 1 for error. */
-typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(RFILE *stream);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(struct retro_vfs_file_handle *stream);
 
 /* Set the current read/write position for the file. Returns the new position, -1 for error. */
-typedef int64_t (RETRO_CALLCONV *retro_vfs_file_seek_t)(RFILE *stream, int64_t offset);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_seek_t)(struct retro_vfs_file_handle *stream, int64_t offset);
 
 /* Read data from a file. Returns the number of bytes read, or -1 for error. */
-typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(RFILE *stream, void *s, uint64_t len);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(struct retro_vfs_file_handle *stream, void *s, uint64_t len);
 
 /* Write data to a file. Returns the number of bytes written, or -1 for error. */
-typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(RFILE *stream, const void *s, uint64_t len);
+typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_handle *stream, const void *s, uint64_t len);
 
 /* Flush pending writes to file, if using buffered IO */
-typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(RFILE *stream);
+typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
 /* Delete the specified file. Returns true if the file was deleted. */
 typedef bool (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
