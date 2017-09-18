@@ -1053,7 +1053,7 @@ typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(struct retro_vfs_file_ha
 /* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_handle *stream, const void *s, uint64_t len);
 
-/* Flush pending writes to file, if using buffered IO. Returns 0 on sucess, or -1 for error. */
+/* Flush pending writes to file, if using buffered IO. Returns 0 on sucess, or -1 on failure. */
 /* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
@@ -1089,7 +1089,9 @@ typedef struct retro_vfs_interface_info
 
 #define RETRO_ENVIRONMENT_GET_VFS_INTERFACE 45
                                            /* struct retro_vfs_interface_info * --
-                                            * Gets access to the VFS interface. */
+                                            * Gets access to the VFS interface.
+                                            * VFS presence needs to be queried prior to load_game being called.
+                                            * It is recomended to do so in retro_set_environment */
 
 #define RETRO_MEMDESC_CONST     (1 << 0)   /* The frontend will never change this memory area once retro_load_game has returned. */
 #define RETRO_MEMDESC_BIGENDIAN (1 << 1)   /* The memory area contains big endian data. Default is little endian. */
