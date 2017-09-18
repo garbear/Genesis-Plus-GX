@@ -39,6 +39,8 @@
 
 RETRO_BEGIN_DECLS
 
+typedef struct retro_vfs_file_handle RFILE;
+
 void filestream_vfs_init(const retro_vfs_interface_info* vfs_iface_info);
 
 RFILE *filestream_open(const char *path, uint64_t flags);

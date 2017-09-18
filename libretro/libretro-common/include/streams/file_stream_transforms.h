@@ -28,7 +28,7 @@
 
 RETRO_BEGIN_DECLS
 
-typedef struct RFILE RFILE;
+typedef struct retro_vfs_file_handle RFILE;
 
 #define FILE RFILE
 
