@@ -1009,70 +1009,85 @@ struct retro_hw_render_context_negotiation_interface
 /* VFS functionality */
 
 /* Opaque file handle */
+/* Introduced in VFS API v1 */
 struct retro_vfs_file_handle;
 
 /* File open flags */
+/* Introduced in VFS API v1 */
 #define RETRO_VFS_FILE_ACCESS_READ       (1 << 0)
 #define RETRO_VFS_FILE_ACCESS_WRITE      (1 << 1)
 #define RETRO_VFS_FILE_ACCESS_READ_WRITE (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE)
 #define RETRO_VFS_FILE_ACCESS_TEXT_MODE  (1 << 2)
 
 /* Get path from opaque handle */
+/* Introduced in VFS API v1 */
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs_file_handle *stream);
 
 /* Open a file for reading or writing. If path points to a directory, this will
  * fail. Returns the opaque file handle, or NULL for error. */
+ /* Introduced in VFS API v1 */
 typedef struct retro_vfs_file_handle *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
 
 /* Close the file and release its resources. Must be called if open_file returns non-NULL. */
+/* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(struct retro_vfs_file_handle *stream);
 
 /* Same as ferror() */
+/* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_error_t)(struct retro_vfs_file_handle *stream);
 
 /* Return the size of the file in bytes, or -1 for error. */
+/* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_size_t)(struct retro_vfs_file_handle *stream);
 
-/*Get the current read / write position for the file.Returns - 1 for error. */
+/* Get the current read / write position for the file.Returns - 1 for error. */
+/* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(struct retro_vfs_file_handle *stream);
 
 /* Set the current read/write position for the file. Returns the new position, -1 for error. */
+/* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_seek_t)(struct retro_vfs_file_handle *stream, int64_t offset);
 
 /* Read data from a file. Returns the number of bytes read, or -1 for error. */
+/* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(struct retro_vfs_file_handle *stream, void *s, uint64_t len);
 
 /* Write data to a file. Returns the number of bytes written, or -1 for error. */
+/* Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_handle *stream, const void *s, uint64_t len);
 
 /* Flush pending writes to file, if using buffered IO */
+/* Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
 /* Delete the specified file. Returns true if the file was deleted. */
+/* Introduced in VFS API v1 */
 typedef bool (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
 
 struct retro_vfs_interface
 {
-	retro_vfs_file_get_path_t retro_vfs_file_get_path;
-	retro_vfs_file_open_t retro_vfs_file_open;
-	retro_vfs_file_close_t retro_vfs_file_close;
-	retro_vfs_file_error_t retro_vfs_file_error;
-	retro_vfs_file_size_t retro_vfs_file_size;
-	retro_vfs_file_tell_t retro_vfs_file_tell;
-	retro_vfs_file_seek_t retro_vfs_file_seek;
-	retro_vfs_file_read_t retro_vfs_file_read;
-	retro_vfs_file_write_t retro_vfs_file_write;
-	retro_vfs_file_flush_t retro_vfs_file_flush;
-	retro_vfs_file_delete_t retro_vfs_file_delete;
+	retro_vfs_file_get_path_t file_get_path;
+	retro_vfs_file_open_t file_open;
+	retro_vfs_file_close_t file_close;
+	retro_vfs_file_error_t file_error;
+	retro_vfs_file_size_t file_size;
+	retro_vfs_file_tell_t file_tell;
+	retro_vfs_file_seek_t file_seek;
+	retro_vfs_file_read_t file_read;
+	retro_vfs_file_write_t file_write;
+	retro_vfs_file_flush_t file_flush;
+	retro_vfs_file_delete_t file_delete;
 };
 
 typedef struct retro_vfs_interface_info
 {
    /* Set by core, frontend won't use VFS unless it supports at least this version. */
+   /* Introduced in VFS API v1 */
    unsigned required_interface_version;
 
    /* Frontend writes interface pointer here. The frontend also sets the actual
-    * version, must be at least requested_interface_version. */
+    * version, must be at least requested_interface_version.
+	* Introduced in VFS API v1 */
    struct retro_vfs_interface *iface;
 } retro_vfs_interface_info;
 

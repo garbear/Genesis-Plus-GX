@@ -64,17 +64,17 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 		return;
 	}
 
-	filestream_get_path_cb = vfs_iface->retro_vfs_file_get_path;
-	filestream_open_cb = vfs_iface->retro_vfs_file_open;
-	filestream_close_cb = vfs_iface->retro_vfs_file_close;
-	filestream_error_cb = vfs_iface->retro_vfs_file_error;
-	filestream_size_cb = vfs_iface->retro_vfs_file_size;
-	filestream_tell_cb = vfs_iface->retro_vfs_file_tell;
-	filestream_seek_cb = vfs_iface->retro_vfs_file_seek;
-	filestream_read_cb = vfs_iface->retro_vfs_file_read;
-	filestream_write_cb = vfs_iface->retro_vfs_file_write;
-	filestream_flush_cb = vfs_iface->retro_vfs_file_flush;
-	filestream_delete_cb = vfs_iface->retro_vfs_file_delete;
+	filestream_get_path_cb = vfs_iface->file_get_path;
+	filestream_open_cb = vfs_iface->file_open;
+	filestream_close_cb = vfs_iface->file_close;
+	filestream_error_cb = vfs_iface->file_error;
+	filestream_size_cb = vfs_iface->file_size;
+	filestream_tell_cb = vfs_iface->file_tell;
+	filestream_seek_cb = vfs_iface->file_seek;
+	filestream_read_cb = vfs_iface->file_read;
+	filestream_write_cb = vfs_iface->file_write;
+	filestream_flush_cb = vfs_iface->file_flush;
+	filestream_delete_cb = vfs_iface->file_delete;
 }
 
 /* Callback wrappers */
