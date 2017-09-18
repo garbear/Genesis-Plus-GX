@@ -58,7 +58,7 @@ void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
 	filestream_flush_cb = NULL;
 	filestream_delete_cb = NULL;
 
-	const retro_vfs_interface* vfs_iface = vfs_info->iface;
+	const struct retro_vfs_interface* vfs_iface = vfs_info->iface;
 	if (vfs_info->required_interface_version < FILESTREAM_REQUIRED_VFS_VERSION || vfs_iface == NULL)
 	{
 		return;

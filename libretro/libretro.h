@@ -1051,7 +1051,7 @@ typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(RFILE *stream);
 /* Delete the specified file. Returns true if the file was deleted. */
 typedef bool (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
 
-typedef struct retro_vfs_interface
+struct retro_vfs_interface
 {
 	retro_vfs_file_get_path_t retro_vfs_file_get_path;
 	retro_vfs_file_open_t retro_vfs_file_open;
@@ -1064,7 +1064,7 @@ typedef struct retro_vfs_interface
 	retro_vfs_file_write_t retro_vfs_file_write;
 	retro_vfs_file_flush_t retro_vfs_file_flush;
 	retro_vfs_file_delete_t retro_vfs_file_delete;
-} retro_vfs_interface;
+};
 
 typedef struct retro_vfs_interface_info
 {
