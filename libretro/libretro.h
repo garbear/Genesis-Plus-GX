@@ -1008,20 +1008,26 @@ struct retro_hw_render_context_negotiation_interface
 
 /* VFS functionality */
 
-/* Opaque file handle */
-/* Introduced in VFS API v1 */
+/* File paths:
+ * File paths passed as parameters when using this api shall be:
+ * 1. Well formed unix-style (so use / instead of \ as directory separator)
+ * 2. Absolute: including ".", ".." or "~" as special directory signifiers is not allowed
+ * Cores should treat paths received from the core as they would if there was no VFS in place */
+
+/* Opaque file handle
+ * Introduced in VFS API v1 */
 struct retro_vfs_file_handle;
 
-/* File open flags */
-/* Introduced in VFS API v1 */
+/* File open flags
+ * Introduced in VFS API v1 */
 #define RETRO_VFS_FILE_ACCESS_READ            (1 << 0) /* Read only mode */
 #define RETRO_VFS_FILE_ACCESS_WRITE           (1 << 1) /* Write only mode, discard contents and overwrites existing file unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified */
 #define RETRO_VFS_FILE_ACCESS_READ_WRITE      (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE) /* Read-write mode, discard contents and overwrites existing file unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified*/
 #define RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING (1 << 2) /* Prevents discarding content of existing files opened for writing */
 #define RETRO_VFS_FILE_ACCESS_TEXT_MODE       (1 << 3) /* Hints the front end to use text mode when opening file */
 
-/* Get path from opaque handle. Returns the exact same path passed to file_open when getting the handle */
-/* Introduced in VFS API v1 */
+/* Get path from opaque handle. Returns the exact same path passed to file_open when getting the handle
+ * Introduced in VFS API v1 */
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs_file_handle *stream);
 
 /* Open a file for reading or writing. If path points to a directory, this will
@@ -1077,8 +1083,10 @@ struct retro_vfs_interface
 
 struct retro_vfs_interface_info
 {
-   /* Set by core, frontend won't use VFS unless it supports at least this version. */
-   /* Introduced in VFS API v1 */
+   /* Set by core: should this be higher than the version the front end supports, front end will:
+    * 1. set the iface pointer in this struct to NULL
+    * 2. Return false in the RETRO_ENVIRONMENT_GET_VFS_INTERFACE call
+    * Introduced in VFS API v1 */
    uint32_t required_interface_version;
 
    /* Frontend writes interface pointer here. The frontend also sets the actual
