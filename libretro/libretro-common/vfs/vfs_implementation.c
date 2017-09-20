@@ -404,7 +404,7 @@ int retro_vfs_file_flush_impl(libretro_vfs_implementation_file *stream)
 }
 
 /* No idea how it is supposed to work on PSP/PS3 etc. Should not be affected by buffered IO */
-bool retro_vfs_file_delete_impl(const char *path)
+int retro_vfs_file_delete_impl(const char *path)
 {
 	return remove(path) == 0;
 }

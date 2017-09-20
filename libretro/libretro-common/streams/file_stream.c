@@ -210,7 +210,7 @@ int filestream_flush(RFILE *stream)
 	return output;
 }
 
-bool filestream_delete(const char *path)
+int filestream_delete(const char *path)
 {
 	if (filestream_delete_cb != NULL)
 	{
