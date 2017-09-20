@@ -1057,7 +1057,7 @@ typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_h
  * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
-/* Delete the specified file. Returns true if the file was deleted. Returns 0 on success, -1 on failure.
+/* Delete the specified file. Returns 0 on success, -1 on failure, 1 if path does not match an existing file
  * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
 
@@ -1079,7 +1079,7 @@ typedef struct retro_vfs_interface_info
 {
    /* Set by core, frontend won't use VFS unless it supports at least this version. */
    /* Introduced in VFS API v1 */
-   unsigned required_interface_version;
+   uint32_t required_interface_version;
 
    /* Frontend writes interface pointer here. The frontend also sets the actual
     * version, must be at least required_interface_version.
@@ -1090,7 +1090,9 @@ typedef struct retro_vfs_interface_info
 #define RETRO_ENVIRONMENT_GET_VFS_INTERFACE 45
                                            /* struct retro_vfs_interface_info * --
                                             * Gets access to the VFS interface.
-                                            * VFS presence needs to be queried prior to load_game being called.
+                                            * VFS presence needs to be queried prior to load_game or any
+                                            * get_system/save/other_directory being called to let front end know
+                                            * core supports VFS before it starts handing out paths.
                                             * It is recomended to do so in retro_set_environment */
 
 #define RETRO_MEMDESC_CONST     (1 << 0)   /* The frontend will never change this memory area once retro_load_game has returned. */
