@@ -1025,41 +1025,41 @@ struct retro_vfs_file_handle;
 typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs_file_handle *stream);
 
 /* Open a file for reading or writing. If path points to a directory, this will
- * fail. Returns the opaque file handle, or NULL for error. */
- /* Introduced in VFS API v1 */
+ * fail. Returns the opaque file handle, or NULL for error.
+ * Introduced in VFS API v1 */
 typedef struct retro_vfs_file_handle *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
 
-/* Close the file and release its resources. Must be called if open_file returns non-NULL. Returns 0 on succes, -1 on failure */
-/* Introduced in VFS API v1 */
+/* Close the file and release its resources. Must be called if open_file returns non-NULL. Returns 0 on succes, -1 on failure
+ * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(struct retro_vfs_file_handle *stream);
 
-/* Return the size of the file in bytes, or -1 for error. */
-/* Introduced in VFS API v1 */
+/* Return the size of the file in bytes, or -1 for error.
+ * Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_size_t)(struct retro_vfs_file_handle *stream);
 
-/* Get the current read / write position for the file. Returns - 1 for error. */
-/* Introduced in VFS API v1 */
+/* Get the current read / write position for the file. Returns - 1 for error.
+ * Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_tell_t)(struct retro_vfs_file_handle *stream);
 
-/* Set the current read/write position for the file. Returns the new position, -1 for error. */
-/* Introduced in VFS API v1 */
+/* Set the current read/write position for the file. Returns the new position, -1 for error.
+ * Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_seek_t)(struct retro_vfs_file_handle *stream, int64_t offset);
 
-/* Read data from a file. Returns the number of bytes read, or -1 for error. */
-/* Introduced in VFS API v1 */
+/* Read data from a file. Returns the number of bytes read, or -1 for error.
+ * Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_read_t)(struct retro_vfs_file_handle *stream, void *s, uint64_t len);
 
-/* Write data to a file. Returns the number of bytes written, or -1 for error. */
-/* Introduced in VFS API v1 */
+/* Write data to a file. Returns the number of bytes written, or -1 for error.
+ * Introduced in VFS API v1 */
 typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_handle *stream, const void *s, uint64_t len);
 
-/* Flush pending writes to file, if using buffered IO. Returns 0 on sucess, or -1 on failure. */
-/* Introduced in VFS API v1 */
+/* Flush pending writes to file, if using buffered IO. Returns 0 on sucess, or -1 on failure.
+ * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
-/* Delete the specified file. Returns true if the file was deleted. */
-/* Introduced in VFS API v1 */
-typedef bool (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
+/* Delete the specified file. Returns true if the file was deleted. Returns 0 on success, -1 on failure.
+ * Introduced in VFS API v1 */
+typedef int (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
 
 struct retro_vfs_interface
 {
