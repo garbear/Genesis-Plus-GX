@@ -1087,7 +1087,7 @@ struct retro_vfs_interface_info
    struct retro_vfs_interface *iface;
 };
 
-#define RETRO_ENVIRONMENT_GET_VFS_INTERFACE 45
+#define RETRO_ENVIRONMENT_GET_VFS_INTERFACE (45 | RETRO_ENVIRONMENT_EXPERIMENTAL)
                                            /* struct retro_vfs_interface_info * --
                                             * Gets access to the VFS interface.
                                             * VFS presence needs to be queried prior to load_game or any
