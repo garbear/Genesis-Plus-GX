@@ -45,7 +45,7 @@ typedef struct RFILE
 	bool error_flag;
 } RFILE;
 
-void filestream_vfs_init(const retro_vfs_interface_info* vfs_iface_info);
+void filestream_vfs_init(const struct retro_vfs_interface_info* vfs_iface_info);
 
 RFILE *filestream_open(const char *path, uint64_t flags);
 

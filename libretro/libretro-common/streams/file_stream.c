@@ -45,7 +45,7 @@ retro_vfs_file_delete_t filestream_delete_cb = NULL;
 
 /* VFS Initialization */
 
-void filestream_vfs_init(const retro_vfs_interface_info* vfs_info)
+void filestream_vfs_init(const struct retro_vfs_interface_info* vfs_info)
 {
 	filestream_get_path_cb = NULL;
 	filestream_open_cb = NULL;

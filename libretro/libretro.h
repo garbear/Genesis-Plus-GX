@@ -1075,7 +1075,7 @@ struct retro_vfs_interface
 	retro_vfs_file_delete_t file_delete;
 };
 
-typedef struct retro_vfs_interface_info
+struct retro_vfs_interface_info
 {
    /* Set by core, frontend won't use VFS unless it supports at least this version. */
    /* Introduced in VFS API v1 */
@@ -1085,7 +1085,7 @@ typedef struct retro_vfs_interface_info
     * version, must be at least required_interface_version.
 	* Introduced in VFS API v1 */
    struct retro_vfs_interface *iface;
-} retro_vfs_interface_info;
+};
 
 #define RETRO_ENVIRONMENT_GET_VFS_INTERFACE 45
                                            /* struct retro_vfs_interface_info * --
