@@ -85,7 +85,6 @@ struct libretro_vfs_implementation_file
 
 #define HAVE_BUFFERED_IO 1
 
-#define MODE_STR_READ "r"
 #define MODE_STR_READ_UNBUF "rb"
 #define MODE_STR_WRITE_UNBUF "wb"
 #define MODE_STR_WRITE_PLUS "w+"
@@ -130,19 +129,6 @@ libretro_vfs_implementation_file *retro_vfs_file_open_impl(const char *path, uin
 
 	switch (mode & HINTS_ACCESS_MASK)
 	{
-	case (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_TEXT_MODE):
-#if  defined(PSP)
-		mode_int = 0666;
-		flags = PSP_O_RDONLY;
-#else
-#if defined(HAVE_BUFFERED_IO)
-		if ((stream->hints & RFILE_HINT_UNBUFFERED) == 0)
-			mode_str = MODE_STR_READ;
-#endif
-		/* No "else" here */
-		flags = O_RDONLY;
-#endif
-		break;
 	case RETRO_VFS_FILE_ACCESS_READ:
 #if  defined(PSP)
 		mode_int = 0666;

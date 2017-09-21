@@ -1024,7 +1024,6 @@ struct retro_vfs_file_handle;
 #define RETRO_VFS_FILE_ACCESS_WRITE           (1 << 1) /* Write only mode, discard contents and overwrites existing file unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified */
 #define RETRO_VFS_FILE_ACCESS_READ_WRITE      (RETRO_VFS_FILE_ACCESS_READ | RETRO_VFS_FILE_ACCESS_WRITE) /* Read-write mode, discard contents and overwrites existing file unless RETRO_VFS_FILE_ACCESS_UPDATE is also specified*/
 #define RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING (1 << 2) /* Prevents discarding content of existing files opened for writing */
-#define RETRO_VFS_FILE_ACCESS_TEXT_MODE       (1 << 3) /* Hints the front end to use text mode when opening file */
 
 /* Get path from opaque handle. Returns the exact same path passed to file_open when getting the handle
  * Introduced in VFS API v1 */
@@ -1084,9 +1083,8 @@ struct retro_vfs_interface
 
 struct retro_vfs_interface_info
 {
-   /* Set by core: should this be higher than the version the front end supports, front end will:
-    * 1. set the iface pointer in this struct to NULL
-    * 2. Return false in the RETRO_ENVIRONMENT_GET_VFS_INTERFACE call
+   /* Set by core: should this be higher than the version the front end supports,
+    * front end will return false in the RETRO_ENVIRONMENT_GET_VFS_INTERFACE call
     * Introduced in VFS API v1 */
    uint32_t required_interface_version;
 

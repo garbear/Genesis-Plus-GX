@@ -31,13 +31,23 @@ RFILE* rfopen(const char *path, const char *mode)
 {
    unsigned int retro_mode = RETRO_VFS_FILE_ACCESS_READ;
 
-   if (strstr(mode, "w"))
-      retro_mode = RETRO_VFS_FILE_ACCESS_WRITE;
-   if (strstr(mode, "+"))
-      retro_mode = RETRO_VFS_FILE_ACCESS_READ_WRITE;
+   if (strstr(mode, "r"))
+   {
+	   retro_mode = RETRO_VFS_FILE_ACCESS_READ;
+	   if (strstr(mode, "+"))
+	   {
+		   retro_mode = RETRO_VFS_FILE_ACCESS_READ_WRITE | RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING;
+	   }
+   }
 
-   if (!strstr(mode, "+"))
-      retro_mode = retro_mode | RETRO_VFS_FILE_ACCESS_TEXT_MODE;
+   if (strstr(mode, "w") || strstr(mode, "a"))
+   {
+	   retro_mode = RETRO_VFS_FILE_ACCESS_WRITE;
+	   if (strstr(mode, "+"))
+	   {
+		   retro_mode = RETRO_VFS_FILE_ACCESS_READ_WRITE | RETRO_VFS_FILE_ACCESS_UPDATE_EXISTING;
+	   }
+   }
 
    return filestream_open(path, retro_mode);
 }
