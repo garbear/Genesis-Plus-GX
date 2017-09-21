@@ -1063,7 +1063,7 @@ typedef int64_t (RETRO_CALLCONV *retro_vfs_file_write_t)(struct retro_vfs_file_h
  * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_flush_t)(struct retro_vfs_file_handle *stream);
 
-/* Delete the specified file. Returns 0 on success, -1 on failure, 1 if path does not match an existing file
+/* Delete the specified file. Returns 0 on success, -1 on failure
  * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_delete_t)(const char *path);
 
