@@ -20,12 +20,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <streams/file_stream.h>
 #include <string.h>
 #include <stdarg.h>
 
 #include <libretro.h>
 #include <stdio.h>
+
+#include <streams/file_stream_transforms.h>
+#include <streams/file_stream.h>
 
 RFILE* rfopen(const char *path, const char *mode)
 {
