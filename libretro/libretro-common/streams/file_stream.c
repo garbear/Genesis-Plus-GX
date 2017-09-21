@@ -28,6 +28,12 @@
 #include <streams/file_stream.h>
 #include <vfs/vfs_implementation.h>
 
+struct RFILE
+{
+	retro_vfs_file_handle *hfile;
+	bool error_flag;
+};
+
 static const int64_t vfs_eror_return_value = -1;
 
 /* Callbacks */
@@ -80,12 +86,12 @@ void filestream_vfs_init(const struct retro_vfs_interface_info* vfs_info)
 
 RFILE *filestream_open(const char *path, uint64_t flags)
 {
-	struct retro_vfs_file_handle* fp;
+	retro_vfs_file_handle* fp;
 
 	if (filestream_open_cb != NULL)
 		fp = filestream_open_cb(path, flags);
 	else
-		fp = (struct retro_vfs_file_handle*)retro_vfs_file_open_impl(path, flags);
+		fp = (retro_vfs_file_handle*)retro_vfs_file_open_impl(path, flags);
 
 	if (fp == NULL)
 		return NULL;
@@ -99,7 +105,7 @@ RFILE *filestream_open(const char *path, uint64_t flags)
 int filestream_close(RFILE *stream)
 {
 	int output;
-	struct retro_vfs_file_handle* fp = stream->hfile;
+	retro_vfs_file_handle* fp = stream->hfile;
 
 	if (filestream_close_cb != NULL)
 		output = filestream_close_cb(fp);

@@ -39,11 +39,7 @@
 
 RETRO_BEGIN_DECLS
 
-typedef struct RFILE
-{
-	struct retro_vfs_file_handle *hfile;
-	bool error_flag;
-} RFILE;
+typedef struct RFILE RFILE;
 
 void filestream_vfs_init(const struct retro_vfs_interface_info* vfs_iface_info);
 

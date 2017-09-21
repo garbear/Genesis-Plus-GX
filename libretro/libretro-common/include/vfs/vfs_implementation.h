@@ -31,8 +31,11 @@
  * This allows the same code to act as reference implementation
  * for VFS and as fallbacks for when the front end does not provide VFS functionality.
  */
+
+#define VFS_TARGET_IS_FRONTEND
+
 #ifdef VFS_TARGET_IS_FRONTEND
-#define libretro_vfs_file RFILE
+typedef struct retro_vfs_file_handle libretro_vfs_implementation_file;
 #else
 typedef struct libretro_vfs_implementation_file libretro_vfs_implementation_file;
 #endif
