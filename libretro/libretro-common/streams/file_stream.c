@@ -30,7 +30,7 @@
 
 struct RFILE
 {
-	retro_vfs_file_handle *hfile;
+	struct retro_vfs_file_handle *hfile;
 	bool error_flag;
 };
 
@@ -86,12 +86,12 @@ void filestream_vfs_init(const struct retro_vfs_interface_info* vfs_info)
 
 RFILE *filestream_open(const char *path, uint64_t flags)
 {
-	retro_vfs_file_handle* fp;
+	struct retro_vfs_file_handle* fp;
 
 	if (filestream_open_cb != NULL)
 		fp = filestream_open_cb(path, flags);
 	else
-		fp = (retro_vfs_file_handle*)retro_vfs_file_open_impl(path, flags);
+		fp = (struct retro_vfs_file_handle*)retro_vfs_file_open_impl(path, flags);
 
 	if (fp == NULL)
 		return NULL;
@@ -105,7 +105,7 @@ RFILE *filestream_open(const char *path, uint64_t flags)
 int filestream_close(RFILE *stream)
 {
 	int output;
-	retro_vfs_file_handle* fp = stream->hfile;
+	struct retro_vfs_file_handle* fp = stream->hfile;
 
 	if (filestream_close_cb != NULL)
 		output = filestream_close_cb(fp);

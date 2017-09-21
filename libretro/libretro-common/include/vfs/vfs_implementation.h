@@ -32,8 +32,6 @@
  * for VFS and as fallbacks for when the front end does not provide VFS functionality.
  */
 
-#define VFS_TARGET_IS_FRONTEND
-
 #ifdef VFS_TARGET_IS_FRONTEND
 typedef struct retro_vfs_file_handle libretro_vfs_implementation_file;
 #else
