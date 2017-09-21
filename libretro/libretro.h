@@ -1035,7 +1035,8 @@ typedef const char *(RETRO_CALLCONV *retro_vfs_file_get_path_t)(struct retro_vfs
  * Introduced in VFS API v1 */
 typedef struct retro_vfs_file_handle *(RETRO_CALLCONV *retro_vfs_file_open_t)(const char *path, uint64_t flags);
 
-/* Close the file and release its resources. Must be called if open_file returns non-NULL. Returns 0 on succes, -1 on failure
+/* Close the file and release its resources. Must be called if open_file returns non-NULL. Returns 0 on succes, -1 on failure.
+ * Whether the call succeeds ot not, the handle passed as parameter becomes invalid and should no longer be used.
  * Introduced in VFS API v1 */
 typedef int (RETRO_CALLCONV *retro_vfs_file_close_t)(struct retro_vfs_file_handle *stream);
 
