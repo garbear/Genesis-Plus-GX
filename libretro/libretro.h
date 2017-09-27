@@ -1009,10 +1009,17 @@ struct retro_hw_render_context_negotiation_interface
 /* VFS functionality */
 
 /* File paths:
- * File paths passed as parameters when using this api shall be:
- * 1. Well formed unix-style (so use / instead of \ as directory separator)
- * 2. Absolute: including ".", ".." or "~" as special directory signifiers is not allowed
- * Cores should treat paths received from the core as they would if there was no VFS in place */
+ * File paths passed as parameters when using this api shall be well formed unix-style,
+ * using / as directory separator regardless of the platform's native separator.
+ * Other than the directory separator, cores shall not make assumptions about path format:
+ * C:/path/game.bin, http://example.com/game.bin, #game/game.bin, game.bin are all valid paths.
+ * Cores may replace the basename or remove path components from the end, and/or add new components (including . and/or ..).
+ * The frontend is encouraged to make such paths work as well as it can, but is allowed to give up if the core alters paths too much.
+ * Frontends are encouraged, but not required, to support native file system paths (modulo replacing the directory separator, if applicable).
+ * Cores are allowed to try this, but must remain functional if the front rejects such a request.
+ * Cores are encouraged to use the libretro-common filestream functions for file I/O,
+ * as they seamlessly integrate with VFS, deal with directory separator replacement as appropriate
+ * and provide platform-specific fallbacks in cases where front ends do not support VFS. */
 
 /* Opaque file handle
  * Introduced in VFS API v1 */
