@@ -1011,9 +1011,9 @@ struct retro_hw_render_context_negotiation_interface
 /* File paths:
  * File paths passed as parameters when using this api shall be well formed unix-style,
  * using "/" (unquoted forward slash) as directory separator regardless of the platform's native separator.
- * Paths shall also include at least one forward slash ("game.bin" is an invalid path, use "/game.bin" instead).
+ * Paths shall also include at least one forward slash ("game.bin" is an invalid path, use "./game.bin" instead).
  * Other than the directory separator, cores shall not make assumptions about path format:
- * "C:/path/game.bin", "http://example.com/game.bin", "#game/game.bin", "game.bin" (without quotes) are all valid paths.
+ * "C:/path/game.bin", "http://example.com/game.bin", "#game/game.bin", "./game.bin" (without quotes) are all valid paths.
  * Cores may replace the basename or remove path components from the end, and/or add new components;
  * however, cores shall not append "./", "../" or multiple consecutive forward slashes ("//") to paths they request to front end.
  * The frontend is encouraged to make such paths work as well as it can, but is allowed to give up if the core alters paths too much.
